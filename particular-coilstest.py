@@ -62,6 +62,10 @@ parser.add_option("-i", "--incells", dest="incells", default=False,
                   action="store_true",
                   help="ROI for statistics is in EDM cells")
 
+parser.add_option("-w", "--wiggle", dest="wiggle",
+                  action="store_true",
+                  default=False, help="wiggle each point")
+
 #d=dipole(1.2,0,0,0,0,100000)  # dipole1
 d=dipole(0,0,1.2,0,0,1)  # dipole2
 #d=dipole(0,0,1.2,1,0,0)  # dipole3
@@ -452,7 +456,7 @@ if(options.zoom):
 else:
     mask=np.full(np.shape(points1d),True)
 
-if(options.axes):
+if(options.axes and not options.wiggle):
     fig7,(ax71)=plt.subplots(nrows=1)
     fig8,(ax81)=plt.subplots(nrows=1)
     fig9,(ax91)=plt.subplots(nrows=1)
@@ -615,7 +619,122 @@ if(options.zoom):
 else:
     mask=np.full(np.shape(points1d),True)
 
-if(options.axes):
+if(options.axes and not options.wiggle):
+    fig7,(ax71)=plt.subplots(nrows=1)
+    fig8,(ax81)=plt.subplots(nrows=1)
+    fig9,(ax91)=plt.subplots(nrows=1)
+    
+    ax71.plot(points1d[mask],bz1d_xscan[mask],label='$B_z(x,0,0)$')
+    ax71.plot(points1d[mask],bz1d_target_xscan[mask],label='target $B_z(x,0,0)$')
+    ax71.plot(points1d[mask],bz1d_yscan[mask],label='$B_z(0,y,0)$')
+    ax71.plot(points1d[mask],bz1d_target_yscan[mask],label='target $B_z(0,y,0)$')
+    ax71.plot(points1d[mask],bz1d_zscan[mask],label='$B_z(0,0,z)$')
+    ax71.plot(points1d[mask],bz1d_target_zscan[mask],label='target $B_z(0,0,z)$')
+    ax71.set_xlabel('x, y, or z (m)')
+    from sympy import latex
+    if(options.dipole):
+        ax71.set_ylabel('$B_z=dipole$')
+    else:
+        ax71.set_ylabel('$B_z=\Pi_{z,%d,%d}=%s$'%(l,m,latex(sp.Piz)))
+    if(not options.zoom):
+        ax71.axvline(x=a/2,color='black',linestyle='--')
+        ax71.axvline(x=-a/2,color='black',linestyle='--')
+        ax71.axvline(x=a_sensors/2,color='red',linestyle='--')
+        ax71.axvline(x=-a_sensors/2,color='red',linestyle='--')
+
+    ax81.plot(points1d[mask],by1d_xscan[mask],label='$B_y(x,0,0)$')
+    ax81.plot(points1d[mask],by1d_target_xscan[mask],label='target $B_y(x,0,0)$')
+    ax81.plot(points1d[mask],by1d_yscan[mask],label='$B_y(0,y,0)$')
+    ax81.plot(points1d[mask],by1d_target_yscan[mask],label='target $B_y(0,y,0)$')
+    ax81.plot(points1d[mask],by1d_zscan[mask],label='$B_y(0,0,z)$')
+    ax81.plot(points1d[mask],by1d_target_zscan[mask],label='target $B_y(0,0,z)$')
+    ax81.set_xlabel('x, y, or z (m)')
+    if(options.dipole):
+        ax81.set_ylabel('$B_y=dipole$')
+    else:
+        ax81.set_ylabel('$B_y=\Pi_{y,%d,%d}=%s$'%(l,m,latex(sp.Piy)))
+    if(not options.zoom):
+        ax81.axvline(x=a/2,color='black',linestyle='--')
+        ax81.axvline(x=-a/2,color='black',linestyle='--')
+        ax81.axvline(x=a_sensors/2,color='red',linestyle='--')
+        ax81.axvline(x=-a_sensors/2,color='red',linestyle='--')
+
+    ax91.plot(points1d[mask],bx1d_xscan[mask],label='$B_x(x,0,0)$')
+    ax91.plot(points1d[mask],bx1d_target_xscan[mask],label='target $B_x(x,0,0)$')
+    ax91.plot(points1d[mask],bx1d_yscan[mask],label='$B_x(0,y,0)$')
+    ax91.plot(points1d[mask],bx1d_target_yscan[mask],label='target $B_x(0,y,0)$')
+    ax91.plot(points1d[mask],bx1d_zscan[mask],label='$B_x(0,0,z)$')
+    ax91.plot(points1d[mask],bx1d_target_zscan[mask],label='target $B_x(0,0,z)$')
+    ax91.set_xlabel('x, y, or z (m)')
+    if(options.dipole):
+        ax91.set_ylabel('$B_x=dipole$')
+    else:
+        ax91.set_ylabel('$B_x=\Pi_{x,%d,%d}=%s$'%(l,m,latex(sp.Pix)))
+    if(not options.zoom):
+        ax91.axvline(x=a/2,color='black',linestyle='--')
+        ax91.axvline(x=-a/2,color='black',linestyle='--')
+        ax91.axvline(x=a_sensors/2,color='red',linestyle='--')
+        ax91.axvline(x=-a_sensors/2,color='red',linestyle='--')
+
+    ax71.axhline(y=0,color='black')
+    ax81.axhline(y=0,color='black')
+    ax91.axhline(y=0,color='black')
+    
+    ax71.legend()
+    ax81.legend()
+    ax91.legend()
+
+plt.show()
+
+
+# Now let's move some coils
+myset.set_currents(calibrated_vec_i)
+#myset.coil[0].move(-0.1,0,0)
+myset.wiggle(0.001)
+
+if(options.traces and options.wiggle):
+    fig = plt.figure()
+    ax=fig.add_subplot(111,projection='3d')
+    myset.draw_coils(ax)
+    #myarray.draw_sensors(ax)
+    ax.set_xlabel('x (m)')
+    ax.set_ylabel('y (m)')
+    ax.set_zlabel('z (m)')
+    plt.show()
+
+
+# the field at the centre of the coilcube
+r=np.array([0,0,0])
+print('Check field at centre of the coilcube')
+print(myset.b(r))
+print(myset.b_prime(0,0,0))
+
+
+# scans along each axis
+points1d=np.mgrid[-a:a:101j]
+bx1d_xscan,by1d_xscan,bz1d_xscan=myset.b_prime(points1d,0.,0.)
+bx1d_yscan,by1d_yscan,bz1d_yscan=myset.b_prime(0.,points1d,0.)
+bx1d_zscan,by1d_zscan,bz1d_zscan=myset.b_prime(0.,0.,points1d)
+
+# target field
+bx1d_target_xscan=bxtarget(points1d,0.,0.)*np.ones(np.shape(points1d))*calibration_factor
+bx1d_target_yscan=bxtarget(0.,points1d,0.)*np.ones(np.shape(points1d))*calibration_factor
+bx1d_target_zscan=bxtarget(0.,0.,points1d)*np.ones(np.shape(points1d))*calibration_factor
+
+by1d_target_xscan=bytarget(points1d,0.,0.)*np.ones(np.shape(points1d))*calibration_factor
+by1d_target_yscan=bytarget(0.,points1d,0.)*np.ones(np.shape(points1d))*calibration_factor
+by1d_target_zscan=bytarget(0.,0.,points1d)*np.ones(np.shape(points1d))*calibration_factor
+
+bz1d_target_xscan=bztarget(points1d,0.,0.)*np.ones(np.shape(points1d))*calibration_factor
+bz1d_target_yscan=bztarget(0.,points1d,0.)*np.ones(np.shape(points1d))*calibration_factor
+bz1d_target_zscan=bztarget(0.,0.,points1d)*np.ones(np.shape(points1d))*calibration_factor
+
+if(options.zoom and options.wiggle):
+    mask=(points1d>=-a_sensors/2)&(points1d<=a_sensors/2)
+else:
+    mask=np.full(np.shape(points1d),True)
+
+if(options.axes and options.wiggle):
     fig7,(ax71)=plt.subplots(nrows=1)
     fig8,(ax81)=plt.subplots(nrows=1)
     fig9,(ax91)=plt.subplots(nrows=1)
