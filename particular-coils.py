@@ -122,8 +122,7 @@ point1=(x1,-y1,z1)
 point2=(x4,-y4,z4)
 point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
-points_ul=(point1,point2,point3,point4)
-points_ul=np.array(points_ul)
+points_ul=(point1,point2,point3,point4)points_ul=np.array(points_ul)
 myset.add_coil(points_ul)
 
 point1=(x1,-y1,-z1)
@@ -571,7 +570,7 @@ class the_matrix:
         self.m=np.zeros((myset.numcoils,myarray.numsensors*3))
         #self.fill(myset,myarray)
         self.fillspeed(myset,myarray)
-        self.condition = np.linalg.cond(self.m)
+        self.condition = np.linalg.cond(self.m) 
 
         # for some reason I chose to create the transpose of the usual
         # convention, when I first wrote the fill method
