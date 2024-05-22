@@ -55,10 +55,12 @@ parser.add_option("-z", "--zoom", dest="zoom", default=False,
 parser.add_option("-a", "--axes", dest="axes", default=False,
                   action="store_true",
                   help="make graphs along axes")
-
 parser.add_option("-i", "--incells", dest="incells", default=False,
                   action="store_true",
                   help="ROI for statistics is in EDM cells")
+parser.add_option("-w", "--wiggle", dest="wiggle",
+                  action="store_true",
+                  default=False, help="wiggle each point")
 
 #d=dipole(1.2,0,0,0,0,100000)  # dipole1
 d=dipole(0,0,1.2,0,0,1)  # dipole2
@@ -122,7 +124,8 @@ point1=(x1,-y1,z1)
 point2=(x4,-y4,z4)
 point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
-points_ul=(point1,point2,point3,point4)points_ul=np.array(points_ul)
+points_ul=(point1,point2,point3,point4)
+points_ul=np.array(points_ul)
 myset.add_coil(points_ul)
 
 point1=(x1,-y1,-z1)
@@ -552,15 +555,6 @@ import matplotlib.pyplot as plt
 
 mpl.rcParams['legend.fontsize'] = 10
 
-if(options.traces):
-    fig = plt.figure()
-    ax=fig.add_subplot(111,projection='3d')
-    myset.draw_coils(ax)
-    myarray.draw_sensors(ax)
-    ax.set_xlabel('x (m)')
-    ax.set_ylabel('y (m)')
-    ax.set_zlabel('z (m)')
-    plt.show()
 
 
 from matplotlib import cm
@@ -718,6 +712,35 @@ def fitgraph(xdata,ydata,ax):
     print(popt)
     ax.plot(points1d,fiteven(xdata,*popt),'r--',label='$p_0$=%2.1e,$p_2$=%2.1e,$p_4$=%2.1e,$p_6$=%2.1e'%tuple(popt))
 
+print('Studies when coilset is pertubed')    
+#wiggle:-  to simulate how the filed at the centre of the coilcube chnageswhen coils are pertubed.
+
+#if options.wiggle:
+    
+    #myset.wiggle(0.15)
+#moving the coilset
+movement = (0.15, 0.15, 0.15) 
+xface = [points_ur, points_ul, points_lr, points_ll]  # Define face coils
+yface = [side_ur, side_ul, side_lr, side_ll, side_mr, side_ml, side_mt, side_mb]
+zface = [top_ur, top_ul, top_lr, top_ll, top_mr, top_ml, top_mt, top_mb]
+
+for coil in myset.coil:
+    for xface_points in xface:
+        #if any(np.all(np.isclose(coil.points, face_points, atol=1e-6), axis=1)):
+            dx, dy, dz = movement
+            coil.move(dx, dy, dz)
+            break  
+if(options.traces):
+    fig = plt.figure()
+    ax=fig.add_subplot(111,projection='3d')
+    myset.draw_coils(ax)
+    myarray.draw_sensors(ax)
+    ax.set_xlabel('x (m)')
+    ax.set_ylabel('y (m)')
+    ax.set_zlabel('z (m)')
+    plt.show()
+
+
 # scans along each axis
 points1d=np.mgrid[-1:1:101j]
 bx1d_xscan,by1d_xscan,bz1d_xscan=myset.b_prime(points1d,0.,0.)
@@ -741,6 +764,7 @@ if(options.zoom):
     mask=(points1d>=-a_sensors/2)&(points1d<=a_sensors/2)
 else:
     mask=np.full(np.shape(points1d),True)
+
 
 if(options.axes):
     fig7,(ax71)=plt.subplots(nrows=1)
@@ -851,6 +875,8 @@ if(options.residuals):
 
 plt.show()
 
+
+
 # studies over an ROI
 
 #x,y,z=np.mgrid[-.25:.25:51j,-.25:.25:51j,-.25:.25:51j]
@@ -884,10 +910,10 @@ bx_residual=bx_roi-bx_target
 by_residual=by_roi-by_target
 bz_residual=bz_roi-bz_target
 
-print(np.shape(bx_roi))
+print('shape of bx_ROI',np.shape(bx_roi))
 
 print('Statistics on the ROI')
-print
+#print
 
 
 
