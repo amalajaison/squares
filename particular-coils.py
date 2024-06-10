@@ -712,14 +712,16 @@ def fitgraph(xdata,ydata,ax):
     print(popt)
     ax.plot(points1d,fiteven(xdata,*popt),'r--',label='$p_0$=%2.1e,$p_2$=%2.1e,$p_4$=%2.1e,$p_6$=%2.1e'%tuple(popt))
 
-print('Studies when coilset is pertubed')    
-#wiggle:-  to simulate how the filed at the centre of the coilcube chnageswhen coils are pertubed.
+print('Studies on coil deformation:')    
+#simulate how the field at the centre of the coilcube chnageswhen coils are pertubed.
 
+#wiggle
 #if options.wiggle:
     
-    #myset.wiggle(0.15)
+ #   myset.wiggle(0.0001) #m
+ 
 #moving the coilset
-movement = (0.15, 0.15, 0.15) 
+movement =(0, 0, 0) #m change if needed
 xface = [points_ur, points_ul, points_lr, points_ll]  # Define face coils
 yface = [side_ur, side_ul, side_lr, side_ll, side_mr, side_ml, side_mt, side_mb]
 zface = [top_ur, top_ul, top_lr, top_ll, top_mr, top_ml, top_mt, top_mb]
