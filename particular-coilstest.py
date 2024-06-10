@@ -1,3 +1,4 @@
+
 #!/usr/bin/python3
 
 # Fri May 24 10:11:45 CDT 2019 Jeff added this line.
@@ -690,7 +691,7 @@ plt.show()
 # Now let's move some coils
 myset.set_currents(calibrated_vec_i)
 #myset.coil[0].move(-0.1,0,0)
-myset.wiggle(0.001)
+myset.wiggle(0.1)
 
 if(options.traces and options.wiggle):
     fig = plt.figure()
