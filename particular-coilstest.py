@@ -14,7 +14,6 @@
 # improved graphs
 
 # Thu 09 May 2024 10:05:31 AM CDT Amala edited code some more.
-# Thu 09 May 2024 10:05:31 AM CDT Amala edited code some more and some more
 
 # Thu 13 Jun 2024 09:32:21 AM CDT Jeff added output of theory graphs
 # for mapping along axes. Added metadata output.
