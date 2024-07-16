@@ -246,16 +246,20 @@ myset.add_coil(oside_lc)
 
 # Phew -- now onto the sides
 
-z1=(400/2+60)*.001
-x1=(105/2+60+255+60)*.001
+#z1=(400/2+60)*.001
+z1=260*.001
+#x1=(105/2+60+255+60)*.001
+x1=250*.001
 y1=-yface
 point1=(x1,y1,z1)
-z2=z1+420*.001 # guess
+#z2=z1+420*.001 # guess
+z2=600*.001 #guess
 x2=x1
 y2=-yface
 point2=(x2,y2,z2)
 z3=z2
-x3=x2+500*.001 # guess
+#x3=x2+500*.001 # guess
+x3=600*.001 #guess
 y3=-yface
 point3=(x3,y3,z3)
 z4=z1
@@ -291,7 +295,8 @@ myset.add_coil(side_lr)
 # central coil
 z1=400/2*.001
 y1=-yface
-x1=(105/2+60+255)*.001
+#x1=(105/2+60+255)*.001
+x1=-190*.001
 point1=(x1,y1,z1)
 point2=(x1,y1,-z1)
 point3=(-x1,y1,-z1)
@@ -300,11 +305,14 @@ side_c=np.array((point1,point2,point3,point4))
 myset.add_coil(side_c)
 
 # middle right coil
-x1=(105/2+60+255+60)*.001
+#x1=(105/2+60+255+60)*.001
+x1=260*.001
 y1=-yface
 z1=400/2*.001
+#z1=250*.001
 point1=(x1,y1,z1)
-x2=x1+500*.001 # same guess as above
+#x2=x1+500*.001 # same guess as above
+x2=600*.001
 y2=-yface
 z2=z1
 point2=(x2,y2,z2)
@@ -322,17 +330,21 @@ side_ml=np.array((point1,point2,point3,point4))
 myset.add_coil(side_ml)
 
 # middle top
-z1=(400/2+60)*.001
-x1=(105/2+60+255)*.001
+#z1=(400/2+60)*.001
+z1=600*.001
+#x1=(105/2+60+255)*.001
+x1=190*.001
 y1=-yface
 point1=(x1,y1,z1)
 z2=z1
+#z2=260*.001
 x2=-x1
 y2=-yface
 point2=(x2,y2,z2)
-z3=z2+420*.001 # same guess as above
+#z3=z2+420*.001 # same guess as above
+z3=260*.001
 x3=x2
-y3=-yface
+y3=-yface 
 point3=(x3,y3,z3)
 z4=z3
 x4=x1
@@ -379,20 +391,26 @@ myset.add_coil(oside_side_mb)
 
 # Double phew, now on to the top side
 
-x1=(400/2+60)*.001 # picture frame of 400x400's separated by 60's
-y1=(400/2+60)*.001
+#x1=(400/2+60)*.001 # picture frame of 400x400's separated by 60's
+x1=260*.001
+#y1=(400/2+60)*.001
+y1=600*.001
 z1=zface
 point1=(x1,y1,z1)
-x2=x1
-y2=y1+400*.001
+x2=600*.001
+#y2=y1+400*.001
+y2=y1
 z2=zface
 point2=(x2,y2,z2)
-x3=x2+400*.001
-y3=y2
+#x3=x2+400*.001
+x3=x2
+#y3=y2
+y3=260*.001
 z3=zface
 point3=(x3,y3,z3)
-x4=x3
-y4=y1
+#x4=x3
+x4=x1
+y4=y3
 z4=zface
 point4=(x4,y4,z4)
 top_ur=(point1,point2,point3,point4)
@@ -433,11 +451,12 @@ top_c=np.array((point1,point2,point3,point4))
 myset.add_coil(top_c)
 
 # middle right coil
-x1=(400/2+60)*.001
+x1=260*.001
 y1=400/2*.001
 z1=zface
 point1=(x1,y1,z1)
-x2=x1+400*.001
+#x2=x1+400*.001
+x2=600*.001
 y2=y1
 z2=zface
 point2=(x2,y2,z2)
@@ -456,7 +475,8 @@ myset.add_coil(top_ml)
 
 # middle top
 x1=400/2*.001
-y1=(400/2+60)*.001
+#y1=(400/2+60)*.001
+y1=600*.001
 z1=zface
 point1=(x1,y1,z1)
 x2=-x1
@@ -464,7 +484,8 @@ y2=y1
 z2=zface
 point2=(x2,y2,z2)
 x3=x2
-y3=y2+400*.001
+#y3=y2+400*.001
+y3=260*.001
 z3=zface
 point3=(x3,y3,z3)
 x4=x1
@@ -595,7 +616,7 @@ if(options.traces):
     fig = plt.figure()
     ax=fig.add_subplot(111,projection='3d')
     myset.draw_coils(ax)
-    myarray.draw_sensors(ax)
+    #myarray.draw_sensors(ax) #uncomment later
     ax.set_xlabel('x (m)')
     ax.set_ylabel('y (m)')
     ax.set_zlabel('z (m)')
