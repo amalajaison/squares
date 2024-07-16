@@ -616,7 +616,7 @@ if(options.traces):
     fig = plt.figure()
     ax=fig.add_subplot(111,projection='3d')
     myset.draw_coils(ax)
-    #myarray.draw_sensors(ax) #uncomment later
+    myarray.draw_sensors(ax)
     ax.set_xlabel('x (m)')
     ax.set_ylabel('y (m)')
     ax.set_zlabel('z (m)')
