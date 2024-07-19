@@ -12,12 +12,16 @@
 # Sat Aug 1 12:40:53 CDT 2020 Jeff added command line options and
 # improved graphs
 
+#Fri July 19 2024, Modeste added the opting to draw the msr and coroplast set up at line 1056 run with options -p.
+
 
 from scipy.constants import mu_0, pi
 import numpy as np
 from patchlib.patch import *
 from Pis.Pislib import *
 from dipole import *
+
+from pipesfitting import *
 
 from optparse import OptionParser
 
@@ -59,6 +63,9 @@ parser.add_option("-a", "--axes", dest="axes", default=False,
 parser.add_option("-i", "--incells", dest="incells", default=False,
                   action="store_true",
                   help="ROI for statistics is in EDM cells")
+parser.add_option("-p", "--makeplots", dest="makeplots", default=False,
+                  action="store_true",
+                  help="Make plots of walls")
 
 #d=dipole(1.2,0,0,0,0,100000)  # dipole1
 d=dipole(0,0,1.2,0,0,1)  # dipole2
@@ -85,6 +92,7 @@ else:
     bytarget=sp.fPiy
     bztarget=sp.fPiz
 
+'''
 # Setup our coilset
 
 myset=coilset()
@@ -529,7 +537,428 @@ myset.add_coil(bott_ml)
 myset.add_coil(bott_mr)
 myset.add_coil(bott_mt)
 myset.add_coil(bott_mb)
+'''
+# Setup our coilset
 
+myset=coilset()
+
+# positions of faces (positive values -- faces will be at plus and
+# minus of these)
+a=2.2 # approximate position of layer 6 of MSR
+xface=a/2 # m
+yface=a/2 # m
+zface=a/2 # m
+
+# set up the rear wall   (East/west walls)
+y1=300*.001
+z1=265*.001
+x1=xface
+point1=(x1,y1,z1)
+y2=y1
+z2=600*0.001  # Jeff changed to fit on 4' sheet
+x2=xface
+point2=(x2,y2,z2)
+y3=600*.001 # guess
+z3=z2
+x3=xface
+point3=(x3,y3,z3)
+y4=y3
+z4=z1
+x4=xface
+point4=(x4,y4,z4)
+points_ur=(point1,point2,point3,point4)
+points_ur=np.array(points_ur)
+myset.add_coil(points_ur)
+
+# Now add mirror images of these
+point1=(x1,-y1,z1)
+point2=(x4,-y4,z4)
+point3=(x3,-y3,z3)
+point4=(x2,-y2,z2)
+points_ul=(point1,point2,point3,point4)
+points_ul=np.array(points_ul)
+myset.add_coil(points_ul)
+
+point1=(x1,-y1,-z1)
+point2=(x2,-y2,-z2)
+point3=(x3,-y3,-z3)
+point4=(x4,-y4,-z4)
+points_ll=(point1,point2,point3,point4)
+points_ll=np.array(points_ll)
+myset.add_coil(points_ll)
+
+point1=(x1,y1,-z1)
+point2=(x4,y4,-z4)
+point3=(x3,y3,-z3)
+point4=(x2,y2,-z2)
+points_lr=(point1,point2,point3,point4)
+points_lr=np.array(points_lr)
+myset.add_coil(points_lr)
+
+# now the central coil
+x1=xface
+y1=260*.001
+z1=205*.001
+point1=(x1,y1,z1)
+point2=(x1,y1,-z1)
+point3=(x1,-y1,-z1)
+point4=(x1,-y1,z1)
+points_c=(point1,point2,point3,point4)
+points_c=np.array(points_c)
+myset.add_coil(points_c)
+
+# now the right side coil
+x1=xface
+y1=300*0.001
+z1=205*.001
+point1=(x1,y1,z1)
+x2=xface
+y2=600*.001 # guess
+z2=z1
+point2=(x2,y2,z2)
+x3=xface
+y3=y2
+z3=-z2
+point3=(x3,y3,z3)
+x4=xface
+y4=y1
+z4=-z1
+point4=(x4,y4,z4)
+points_mr=(point1,point2,point3,point4)
+print('points_mr',points_mr)
+points_mr=np.array(points_mr)
+myset.add_coil(points_mr)
+
+# now the left side coil -- reflect and wind in same direction
+point1=(x1,-y1,z1)
+point2=(x4,-y4,z4)
+point3=(x3,-y3,z3)
+point4=(x2,-y2,z2)
+points_ml=(point1,point2,point3,point4)
+points_ml=np.array(points_ml)
+myset.add_coil(points_ml)
+
+# now the upper central coil
+x1=xface
+y1=260*0.001
+z1=265*.001
+point1=(x1,y1,z1)
+x2=xface
+y2=-260*.001 # guess
+z2=z1
+point2=(x2,y2,z2)
+x3=xface
+y3=y2
+z3=600*.001
+point3=(x3,y3,z3)
+x4=xface
+y4=y1
+z4=z3
+point4=(x4,y4,z4)
+points_uc=(point1,point2,point3,point4)
+print('points_uc',points_uc)
+points_uc=np.array(points_uc)
+myset.add_coil(points_uc)
+
+# now the lower central coil -- reflect and wind in same direction
+point1=(x1,y1,-z1)
+point2=(x4,y4,-z4)
+point3=(x3,y3,-z3)
+point4=(x2,y2,-z2)
+points_lc=(point1,point2,point3,point4)
+points_lc=np.array(points_lc)
+myset.add_coil(points_lc)
+
+# now reflect them all to the other face: xface -> -xface
+def reflect_x(points):
+    newpoints=np.copy(points)
+    newpoints[:,0]=-newpoints[:,0]
+    newpoints=np.flip(newpoints,0) # wind them in the opposite direction
+    return newpoints
+    
+oside_ur=reflect_x(points_ur)
+myset.add_coil(oside_ur)
+oside_ul=reflect_x(points_ul)
+myset.add_coil(oside_ul)
+oside_ll=reflect_x(points_ll)
+myset.add_coil(oside_ll)
+oside_lr=reflect_x(points_lr)
+myset.add_coil(oside_lr)
+oside_c=reflect_x(points_c)
+myset.add_coil(oside_c)
+oside_ml=reflect_x(points_ml)
+myset.add_coil(oside_ml)
+oside_mr=reflect_x(points_mr)
+myset.add_coil(oside_mr)
+oside_uc=reflect_x(points_uc)
+myset.add_coil(oside_uc)
+oside_lc=reflect_x(points_lc)
+myset.add_coil(oside_lc)
+
+# Phew -- now onto the sides  (North/southwalls)
+    
+z1=240*.001
+x1=205*.001
+y1=-yface
+point1=(x1,y1,z1)
+z2=600*.001 #guess
+x2=x1
+y2=-yface
+point2=(x2,y2,z2)
+z3=z2
+x3=600*.001 #guess
+y3=-yface
+point3=(x3,y3,z3)
+z4=z1
+x4=x3
+y4=-yface
+point4=(x4,y4,z4)
+side_ur=(point1,point2,point3,point4)
+side_ur=np.array(side_ur)
+myset.add_coil(side_ur)
+
+# now reflect around
+point1=(-x1,y1,z1)
+point2=(-x4,y4,z4)
+point3=(-x3,y3,z3)
+point4=(-x2,y2,z2)
+side_ul=np.array((point1,point2,point3,point4))
+myset.add_coil(side_ul)
+
+point1=(-x1,y1,-z1)
+point2=(-x2,y2,-z2)
+point3=(-x3,y3,-z3)
+point4=(-x4,y4,-z4)
+side_ll=np.array((point1,point2,point3,point4))
+myset.add_coil(side_ll)
+
+point1=(x1,y1,-z1)
+point2=(x4,y4,-z4)
+point3=(x3,y3,-z3)
+point4=(x2,y2,-z2)
+side_lr=np.array((point1,point2,point3,point4))
+myset.add_coil(side_lr)
+
+# central coil
+z1=195*.001
+y1=-yface
+x1=-255*.001
+point1=(x1,y1,z1)
+point2=(x1,y1,-z1)
+point3=(-x1,y1,-z1)
+point4=(-x1,y1,z1)
+side_c=np.array((point1,point2,point3,point4))
+myset.add_coil(side_c)
+
+# middle right coil
+x1=290*.001
+y1=-yface
+z1=190*.001
+point1=(x1,y1,z1)
+x2=600*.001 #guess
+y2=-yface
+z2=z1
+point2=(x2,y2,z2)
+point3=(x2,y2,-z2)
+point4=(x1,y1,-z1)
+side_mr=np.array((point1,point2,point3,point4))
+myset.add_coil(side_mr)
+
+# reflect it to middle left coil
+point1=(-x1,y1,z1)
+point2=(-x1,y1,-z1)
+point3=(-x2,y2,-z2)
+point4=(-x2,y2,z2)
+side_ml=np.array((point1,point2,point3,point4))
+myset.add_coil(side_ml)
+
+# middle top
+z1=600*.001
+x1=175*.001
+y1=-yface
+point1=(x1,y1,z1)
+z2=z1
+x2=-x1
+y2=-yface
+point2=(x2,y2,z2)
+z3=240*.001
+x3=x2
+y3=-yface 
+point3=(x3,y3,z3)
+z4=z3
+x4=x1
+y4=-yface
+point4=(x4,y4,z4)
+side_mt=np.array((point1,point2,point3,point4))
+myset.add_coil(side_mt)
+
+# mirror to middle bottom
+point1=(x1,y1,-z1)
+point2=(x4,y4,-z4)
+point3=(x3,y3,-z3)
+point4=(x2,y2,-z2)
+side_mb=np.array((point1,point2,point3,point4))
+myset.add_coil(side_mb)
+
+# now reflect them all to the other face: -yface -> yface
+def reflect_y(points):
+    newpoints=np.copy(points)
+    newpoints[:,1]=-newpoints[:,1]
+    newpoints=np.flip(newpoints,0) # wind them in the opposite direction
+    return newpoints
+
+oside_side_ur=reflect_y(side_ur)
+oside_side_ul=reflect_y(side_ul)
+oside_side_ll=reflect_y(side_ll)
+oside_side_lr=reflect_y(side_lr)
+oside_side_c=reflect_y(side_c)
+oside_side_ml=reflect_y(side_ml)
+oside_side_mr=reflect_y(side_mr)
+oside_side_mt=reflect_y(side_mt)
+oside_side_mb=reflect_y(side_mb)
+
+myset.add_coil(oside_side_ur)
+myset.add_coil(oside_side_ul)
+myset.add_coil(oside_side_lr)
+myset.add_coil(oside_side_ll)
+myset.add_coil(oside_side_c)
+myset.add_coil(oside_side_ml)
+myset.add_coil(oside_side_mr)
+myset.add_coil(oside_side_mt)
+myset.add_coil(oside_side_mb)
+
+
+# Double phew, now on to the top side  (Floor and ceiling)
+
+x1=305*.001
+y1=600*.001
+z1=zface
+point1=(x1,y1,z1)
+x2=600*.001
+y2=y1
+z2=zface
+point2=(x2,y2,z2)
+x3=x2
+y3=305*.001
+z3=zface
+point3=(x3,y3,z3)
+x4=x1
+y4=y3
+z4=zface
+point4=(x4,y4,z4)
+top_ur=(point1,point2,point3,point4)
+top_ur=np.array(top_ur)
+myset.add_coil(top_ur)
+
+# now reflect around
+point1=(-x1,y1,z1)
+point2=(-x4,y4,z4)
+point3=(-x3,y3,z3)
+point4=(-x2,y2,z2)
+top_ul=np.array((point1,point2,point3,point4))
+myset.add_coil(top_ul)
+
+point1=(-x1,-y1,z1)
+point2=(-x2,-y2,z2)
+point3=(-x3,-y3,z3)
+point4=(-x4,-y4,z4)
+top_ll=np.array((point1,point2,point3,point4))
+myset.add_coil(top_ll)
+
+point1=(x1,-y1,z1)
+point2=(x4,-y4,z4)
+point3=(x3,-y3,z3)
+point4=(x2,-y2,z2)
+top_lr=np.array((point1,point2,point3,point4))
+myset.add_coil(top_lr)
+
+# central coil
+z1=zface
+y1=270*.001
+x1=270*.001
+point1=(x1,y1,z1)
+point2=(x1,-y1,z1)
+point3=(-x1,-y1,z1)
+point4=(-x1,y1,z1)
+top_c=np.array((point1,point2,point3,point4))
+myset.add_coil(top_c)
+
+# middle right coil
+x1=310*.001
+y1=270*.001
+z1=zface
+point1=(x1,y1,z1)
+x2=600*.001
+y2=y1
+z2=zface
+point2=(x2,y2,z2)
+point3=(x2,-y2,z2)
+point4=(x1,-y1,z1)
+top_mr=np.array((point1,point2,point3,point4))
+myset.add_coil(top_mr)
+
+# reflect it to middle left coil
+point1=(-x1,y1,z1)
+point2=(-x1,-y1,z1)
+point3=(-x2,-y2,z2)
+point4=(-x2,y2,z2)
+top_ml=np.array((point1,point2,point3,point4))
+myset.add_coil(top_ml)
+
+# middle top
+x1=265*.001
+y1=600*.001
+z1=zface
+point1=(x1,y1,z1)
+x2=-x1
+y2=y1
+z2=zface
+point2=(x2,y2,z2)
+x3=x2
+y3=305*.001
+z3=zface
+point3=(x3,y3,z3)
+x4=x1
+y4=y3
+z4=zface
+point4=(x4,y4,z4)
+top_mt=np.array((point1,point2,point3,point4))
+myset.add_coil(top_mt)
+
+# mirror to middle bottom
+point1=(x1,-y1,z1)
+point2=(x4,-y4,z4)
+point3=(x3,-y3,z3)
+point4=(x2,-y2,z2)
+top_mb=np.array((point1,point2,point3,point4))
+myset.add_coil(top_mb)
+
+# now reflect them all to the other face: zface -> -zface
+def reflect_z(points):
+    newpoints=np.copy(points)
+    newpoints[:,2]=-newpoints[:,2]
+    newpoints=np.flip(newpoints,0) # wind them in the opposite direction
+    return newpoints
+
+bott_ur=reflect_z(top_ur)
+bott_ul=reflect_z(top_ul)
+bott_ll=reflect_z(top_ll)
+bott_lr=reflect_z(top_lr)
+bott_c=reflect_z(top_c)
+bott_ml=reflect_z(top_ml)
+bott_mr=reflect_z(top_mr)
+bott_mt=reflect_z(top_mt)
+bott_mb=reflect_z(top_mb)
+
+myset.add_coil(bott_ur)
+myset.add_coil(bott_ul)
+myset.add_coil(bott_lr)
+myset.add_coil(bott_ll)
+myset.add_coil(bott_c)
+myset.add_coil(bott_ml)
+myset.add_coil(bott_mr)
+myset.add_coil(bott_mt)
+myset.add_coil(bott_mb)
 
 class sensor:
     def __init__(self,pos):
@@ -622,6 +1051,28 @@ if(options.traces):
     ax.set_zlabel('z (m)')
     plt.show()
 
+if(options.makeplots):   #drawing the coroplast and msr walls
+    # Draw wires
+    fig1 = plt.figure(figsize=(9.5,9.5))
+    ax4 = myset.draw_layout(fig1,title_add = " - OneWall",arrow=False,poslabel=False,drawL5=True,drawL6=True)
+    
+    #draw corroplast
+    DrawCoruplast(ax4[0],ax4[1],ax4[2])
+    
+    # initialize pipes
+    backpipesDraw = sparsepipelist()
+    wallpipesDraw = pipelist()
+
+    QuickFeedThroughs(wallpipesDraw,backpipesDraw,color="grey") #plotting unrerouted holes in new color.
+    
+    # draw pipes
+    text=False
+    for piplist in [backpipesDraw,wallpipesDraw]:
+        piplist.draw_yz(ax4[1],text=text,div_rad=51)
+        piplist.draw_xy(ax4[2],text=text,div_rad=51)
+        piplist.draw_xz(ax4[0],text=text,div_rad=51)
+    plt.savefig("/Users/modestekatotoka/Desktop/tucan_2024/tucan/squares_with_pipes/msr_walls/msr_walls_figures.png",dpi=300,bbox_inches='tight')
+    plt.show()
 
 from matplotlib import cm
 
