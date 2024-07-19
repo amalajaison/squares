@@ -12,12 +12,16 @@
 # Sat Aug 1 12:40:53 CDT 2020 Jeff added command line options and
 # improved graphs
 
+#Fri July 19 2024, Modeste added the opting to draw the msr and coroplast set up at line 1056 run with options -p.
+
 
 from scipy.constants import mu_0, pi
 import numpy as np
 from patchlib.patch import *
 from Pis.Pislib import *
 from dipole import *
+
+from pipesfitting import *
 
 from optparse import OptionParser
 
@@ -55,12 +59,13 @@ parser.add_option("-z", "--zoom", dest="zoom", default=False,
 parser.add_option("-a", "--axes", dest="axes", default=False,
                   action="store_true",
                   help="make graphs along axes")
+
 parser.add_option("-i", "--incells", dest="incells", default=False,
                   action="store_true",
                   help="ROI for statistics is in EDM cells")
-parser.add_option("-w", "--wiggle", dest="wiggle",
+parser.add_option("-p", "--makeplots", dest="makeplots", default=False,
                   action="store_true",
-                  default=False, help="wiggle each point")
+                  help="Make plots of walls")
 
 #d=dipole(1.2,0,0,0,0,100000)  # dipole1
 d=dipole(0,0,1.2,0,0,1)  # dipole2
@@ -93,21 +98,23 @@ myset=coilset()
 
 # positions of faces (positive values -- faces will be at plus and
 # minus of these)
-a=1.95
+a=2.2 # approximate position of layer 6 of MSR
 xface=a/2 # m
 yface=a/2 # m
 zface=a/2 # m
 
-# set up the rear wall
-y1=(170/2+60)*.001
-z1=(400/2+60)*.001
+#picture frame separated by 40mm
+
+# set up the rear wall   (East/west walls)
+y1=300*.001
+z1=300*.001
 x1=xface
 point1=(x1,y1,z1)
 y2=y1
-z2=z1+400*.001 # guess
+z2=600*0.001  # Jeff changed to fit on 4' sheet
 x2=xface
 point2=(x2,y2,z2)
-y3=y1+500*.001 # guess
+y3=600*.001 # guess
 z3=z2
 x3=xface
 point3=(x3,y3,z3)
@@ -146,8 +153,8 @@ myset.add_coil(points_lr)
 
 # now the central coil
 x1=xface
-y1=530/2*.001
-z1=400/2*.001
+y1=(235+5+20)*.001
+z1=(157+5+98)*.001
 point1=(x1,y1,z1)
 point2=(x1,y1,-z1)
 point3=(x1,-y1,-z1)
@@ -158,11 +165,11 @@ myset.add_coil(points_c)
 
 # now the right side coil
 x1=xface
-y1=1190/2*.001
-z1=400/2*.001
+y1=(235+5+20+40)*0.001
+z1=(300-40)*.001
 point1=(x1,y1,z1)
 x2=xface
-y2=y1+420*.001 # guess
+y2=600*.001 # guess
 z2=z1
 point2=(x2,y2,z2)
 x3=xface
@@ -174,6 +181,7 @@ y4=y1
 z4=-z1
 point4=(x4,y4,z4)
 points_mr=(point1,point2,point3,point4)
+print('points_mr',points_mr)
 points_mr=np.array(points_mr)
 myset.add_coil(points_mr)
 
@@ -185,6 +193,37 @@ point4=(x2,-y2,z2)
 points_ml=(point1,point2,point3,point4)
 points_ml=np.array(points_ml)
 myset.add_coil(points_ml)
+
+# now the upper central coil
+x1=xface
+y1=(235+5+20)*0.001
+z1=(300)*.001
+point1=(x1,y1,z1)
+x2=xface
+y2=-y1 # guess
+z2=z1
+point2=(x2,y2,z2)
+x3=xface
+y3=y2
+z3=600*.001
+point3=(x3,y3,z3)
+x4=xface
+y4=y1
+z4=z3
+point4=(x4,y4,z4)
+points_uc=(point1,point2,point3,point4)
+print('points_uc',points_uc)
+points_uc=np.array(points_uc)
+myset.add_coil(points_uc)
+
+# now the lower central coil -- reflect and wind in same direction
+point1=(x1,y1,-z1)
+point2=(x4,y4,-z4)
+point3=(x3,y3,-z3)
+point4=(x2,y2,-z2)
+points_lc=(point1,point2,point3,point4)
+points_lc=np.array(points_lc)
+myset.add_coil(points_lc)
 
 # now reflect them all to the other face: xface -> -xface
 def reflect_x(points):
@@ -207,19 +246,23 @@ oside_ml=reflect_x(points_ml)
 myset.add_coil(oside_ml)
 oside_mr=reflect_x(points_mr)
 myset.add_coil(oside_mr)
+oside_uc=reflect_x(points_uc)
+myset.add_coil(oside_uc)
+oside_lc=reflect_x(points_lc)
+myset.add_coil(oside_lc)
 
-# Phew -- now onto the sides
-
-z1=(400/2+60)*.001
-x1=(105/2+60+255+60)*.001
+# Phew -- now onto the sides  (North/southwalls)
+    
+z1=(260-5-40)*.001
+x1=(220-5)*.001
 y1=-yface
 point1=(x1,y1,z1)
-z2=z1+420*.001 # guess
+z2=600*.001 #guess
 x2=x1
 y2=-yface
 point2=(x2,y2,z2)
 z3=z2
-x3=x2+500*.001 # guess
+x3=600*.001 #guess
 y3=-yface
 point3=(x3,y3,z3)
 z4=z1
@@ -253,9 +296,9 @@ side_lr=np.array((point1,point2,point3,point4))
 myset.add_coil(side_lr)
 
 # central coil
-z1=400/2*.001
+z1=(170+5)*.001
 y1=-yface
-x1=(105/2+60+255)*.001
+x1=(-221-5)*.001
 point1=(x1,y1,z1)
 point2=(x1,y1,-z1)
 point3=(-x1,y1,-z1)
@@ -264,11 +307,11 @@ side_c=np.array((point1,point2,point3,point4))
 myset.add_coil(side_c)
 
 # middle right coil
-x1=(105/2+60+255+60)*.001
+x1=(221+5+40)*.001
 y1=-yface
-z1=400/2*.001
+z1=(170+5)*.001
 point1=(x1,y1,z1)
-x2=x1+500*.001 # same guess as above
+x2=600*.001 #guess
 y2=-yface
 z2=z1
 point2=(x2,y2,z2)
@@ -286,17 +329,17 @@ side_ml=np.array((point1,point2,point3,point4))
 myset.add_coil(side_ml)
 
 # middle top
-z1=(400/2+60)*.001
-x1=(105/2+60+255)*.001
+z1=600*.001
+x1=(220-5-40)*.001
 y1=-yface
 point1=(x1,y1,z1)
 z2=z1
 x2=-x1
 y2=-yface
 point2=(x2,y2,z2)
-z3=z2+420*.001 # same guess as above
+z3=(260-5-40)*.001
 x3=x2
-y3=-yface
+y3=-yface 
 point3=(x3,y3,z3)
 z4=z3
 x4=x1
@@ -341,22 +384,22 @@ myset.add_coil(oside_side_mt)
 myset.add_coil(oside_side_mb)
 
 
-# Double phew, now on to the top side
+# Double phew, now on to the top side  (Floor and ceiling)
 
-x1=(400/2+60)*.001 # picture frame of 400x400's separated by 60's
-y1=(400/2+60)*.001
+x1=(300)*.001
+y1=600*.001
 z1=zface
 point1=(x1,y1,z1)
-x2=x1
-y2=y1+400*.001
+x2=600*.001
+y2=y1
 z2=zface
 point2=(x2,y2,z2)
-x3=x2+400*.001
-y3=y2
+x3=x2
+y3=x1
 z3=zface
 point3=(x3,y3,z3)
-x4=x3
-y4=y1
+x4=x1
+y4=y3
 z4=zface
 point4=(x4,y4,z4)
 top_ur=(point1,point2,point3,point4)
@@ -387,8 +430,8 @@ myset.add_coil(top_lr)
 
 # central coil
 z1=zface
-y1=400/2*.001
-x1=400/2*.001
+y1=(245+5+10)*.001
+x1=(245+5+10)*.001
 point1=(x1,y1,z1)
 point2=(x1,-y1,z1)
 point3=(-x1,-y1,z1)
@@ -397,11 +440,11 @@ top_c=np.array((point1,point2,point3,point4))
 myset.add_coil(top_c)
 
 # middle right coil
-x1=(400/2+60)*.001
-y1=400/2*.001
+x1=300*.001
+y1=(245+5+10)*.001
 z1=zface
 point1=(x1,y1,z1)
-x2=x1+400*.001
+x2=600*.001
 y2=y1
 z2=zface
 point2=(x2,y2,z2)
@@ -419,8 +462,8 @@ top_ml=np.array((point1,point2,point3,point4))
 myset.add_coil(top_ml)
 
 # middle top
-x1=400/2*.001
-y1=(400/2+60)*.001
+x1=(300-40)*.001
+y1=600*.001
 z1=zface
 point1=(x1,y1,z1)
 x2=-x1
@@ -428,7 +471,7 @@ y2=y1
 z2=zface
 point2=(x2,y2,z2)
 x3=x2
-y3=y2+400*.001
+y3=(245+5+10+40)*.001
 z3=zface
 point3=(x3,y3,z3)
 x4=x1
@@ -472,7 +515,6 @@ myset.add_coil(bott_ml)
 myset.add_coil(bott_mr)
 myset.add_coil(bott_mt)
 myset.add_coil(bott_mb)
-
 
 class sensor:
     def __init__(self,pos):
@@ -555,7 +597,38 @@ import matplotlib.pyplot as plt
 
 mpl.rcParams['legend.fontsize'] = 10
 
+if(options.traces):
+    fig = plt.figure()
+    ax=fig.add_subplot(111,projection='3d')
+    myset.draw_coils(ax)
+    myarray.draw_sensors(ax)
+    ax.set_xlabel('x (m)')
+    ax.set_ylabel('y (m)')
+    ax.set_zlabel('z (m)')
+    plt.show()
 
+if(options.makeplots):   #drawing the coroplast and msr walls
+    # Draw wires
+    fig1 = plt.figure(figsize=(9.5,9.5))
+    ax4 = myset.draw_layout(fig1,title_add = " - OneWall",arrow=False,poslabel=False,drawL5=True,drawL6=True)
+    
+    #draw corroplast
+    DrawCoruplast(ax4[0],ax4[1],ax4[2])
+    
+    # initialize pipes
+    backpipesDraw = sparsepipelist()
+    wallpipesDraw = pipelist()
+
+    QuickFeedThroughs(wallpipesDraw,backpipesDraw,color="grey") #plotting unrerouted holes in new color.
+    
+    # draw pipes
+    text=False
+    for piplist in [backpipesDraw,wallpipesDraw]:
+        piplist.draw_yz(ax4[1],text=text,div_rad=51)
+        piplist.draw_xy(ax4[2],text=text,div_rad=51)
+        piplist.draw_xz(ax4[0],text=text,div_rad=51)
+    plt.savefig("/Users/modestekatotoka/Desktop/tucan_2024/tucan/modeste_squares/squares/msr_walls_figure/msr_walls_figures.png",dpi=300,bbox_inches='tight')
+    plt.show() #saving directory for the msr figure
 
 from matplotlib import cm
 
@@ -564,7 +637,7 @@ class the_matrix:
         self.m=np.zeros((myset.numcoils,myarray.numsensors*3))
         #self.fill(myset,myarray)
         self.fillspeed(myset,myarray)
-        self.condition = np.linalg.cond(self.m) 
+        self.condition = np.linalg.cond(self.m)
 
         # for some reason I chose to create the transpose of the usual
         # convention, when I first wrote the fill method
@@ -712,37 +785,6 @@ def fitgraph(xdata,ydata,ax):
     print(popt)
     ax.plot(points1d,fiteven(xdata,*popt),'r--',label='$p_0$=%2.1e,$p_2$=%2.1e,$p_4$=%2.1e,$p_6$=%2.1e'%tuple(popt))
 
-print('Studies on coil deformation:')    
-#simulate how the field at the centre of the coilcube chnageswhen coils are pertubed.
-
-#wiggle
-#if options.wiggle:
-    
- #   myset.wiggle(0.0001) #m
- 
-#moving the coilset
-movement =(0, 0, 0) #m change if needed
-xface = [points_ur, points_ul, points_lr, points_ll]  # Define face coils
-yface = [side_ur, side_ul, side_lr, side_ll, side_mr, side_ml, side_mt, side_mb]
-zface = [top_ur, top_ul, top_lr, top_ll, top_mr, top_ml, top_mt, top_mb]
-
-for coil in myset.coil:
-    for xface_points in xface:
-        #if any(np.all(np.isclose(coil.points, face_points, atol=1e-6), axis=1)):
-            dx, dy, dz = movement
-            coil.move(dx, dy, dz)
-            break  
-if(options.traces):
-    fig = plt.figure()
-    ax=fig.add_subplot(111,projection='3d')
-    myset.draw_coils(ax)
-    myarray.draw_sensors(ax)
-    ax.set_xlabel('x (m)')
-    ax.set_ylabel('y (m)')
-    ax.set_zlabel('z (m)')
-    plt.show()
-
-
 # scans along each axis
 points1d=np.mgrid[-1:1:101j]
 bx1d_xscan,by1d_xscan,bz1d_xscan=myset.b_prime(points1d,0.,0.)
@@ -766,7 +808,6 @@ if(options.zoom):
     mask=(points1d>=-a_sensors/2)&(points1d<=a_sensors/2)
 else:
     mask=np.full(np.shape(points1d),True)
-
 
 if(options.axes):
     fig7,(ax71)=plt.subplots(nrows=1)
@@ -877,8 +918,6 @@ if(options.residuals):
 
 plt.show()
 
-
-
 # studies over an ROI
 
 #x,y,z=np.mgrid[-.25:.25:51j,-.25:.25:51j,-.25:.25:51j]
@@ -912,10 +951,10 @@ bx_residual=bx_roi-bx_target
 by_residual=by_roi-by_target
 bz_residual=bz_roi-bz_target
 
-print('shape of bx_ROI',np.shape(bx_roi))
+print(np.shape(bx_roi))
 
 print('Statistics on the ROI')
-#print
+print
 
 
 
