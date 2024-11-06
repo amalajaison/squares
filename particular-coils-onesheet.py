@@ -68,8 +68,8 @@ parser.add_option("-p", "--makeplots", dest="makeplots", default=False,
                   help="Make plots of walls")
 
 #d=dipole(1.2,0,0,0,0,100000)  # dipole1
-d=dipole(0,0,1.2,0,0,1)  # dipole2
-#d=dipole(0,0,1.2,1,0,0)  # dipole3
+#d=dipole(0,0,1.2,0,0,1)  # dipole2
+d=dipole(0,0,1.2,1,0,0)  # dipole3
 
 (options,args)=parser.parse_args()
 
@@ -251,7 +251,7 @@ myset.add_coil(oside_uc)
 oside_lc=reflect_x(points_lc)
 myset.add_coil(oside_lc)
 
-# Phew -- now onto the sides  (North/southwalls)
+# Phew -- now onto the sides  (North/south walls)
     
 z1=(260-5-40)*.001
 x1=(220-5)*.001
@@ -628,7 +628,7 @@ if(options.makeplots):   #drawing the coroplast and msr walls
         piplist.draw_xy(ax4[2],text=text,div_rad=51)
         piplist.draw_xz(ax4[0],text=text,div_rad=51)
     plt.savefig("/Users/modestekatotoka/Desktop/tucan_2024/tucan/modeste_squares/squares/msr_walls_figure/msr_walls_figures.png",dpi=300,bbox_inches='tight')
-    plt.show() #saving directory for the msr figure
+    plt.show() #saving directory for the msr walls figure
 
 from matplotlib import cm
 
@@ -951,11 +951,23 @@ bx_residual=bx_roi-bx_target
 by_residual=by_roi-by_target
 bz_residual=bz_roi-bz_target
 
+
+# type and shape of bz_target
+print("Type of bz_target:", type(bz_target))
+print("Shape of bz_target:", np.shape(bz_target))
+
+# bz_target is an array?
+if not isinstance(bz_target, np.ndarray):
+    raise ValueError("bz_target must be an array") #error raises when running with l=0,m=0
+
+
+
 print(np.shape(bx_roi))
 
 print('Statistics on the ROI')
 print
 
+#print('bz_target',bz_target)
 
 
 bz_ave=np.average(bz_target)
@@ -1197,5 +1209,7 @@ if(options.residuals):
         plt.axvline(x=-a/2,color='black',linestyle='--')
         plt.axvline(x=a_sensors/2,color='red',linestyle='--')
         plt.axvline(x=-a_sensors/2,color='red',linestyle='--')
+
+plt.savefig("/Users/modestekatotoka/Desktop/tucan_2024/tucan/modeste_squares/squares/msr_walls_figure/test.png",dpi=300,bbox_inches='tight')
 
 plt.show()
