@@ -282,6 +282,7 @@ if(options.traces):
 
 
 from matplotlib import cm
+print('the matrix...')
 
 class the_matrix:
     def __init__(self,myset,myarray):
@@ -294,6 +295,7 @@ class the_matrix:
         # for some reason I chose to create the transpose of the usual
         # convention, when I first wrote the fill method
         self.capital_M=self.m.T # M=s*c=sensors*coils Matrix
+        print('capital_M is ',self.capital_M)
 
         # Do the svd
         self.U,self.s,self.VT=np.linalg.svd(self.capital_M)
@@ -316,6 +318,7 @@ class the_matrix:
         self.Minv=self.VT.T.dot(self.D.T).dot(self.U.T)
         #self.Minv=np.linalg.pinv(self.capital_M)
         
+        
         # now gets to fixin'
         # remove just the last mode
         n_elements=myset.numcoils-1
@@ -323,6 +326,7 @@ class the_matrix:
         self.Dp=self.D[:,:n_elements]
         self.VTp=self.VT[:n_elements,:]
         self.Minvp=self.VTp.T.dot(self.Dp.T).dot(self.U.T)
+      
         
     def fill(self,myset,myarray):
         for i in range(myset.numcoils):
@@ -345,7 +349,7 @@ class the_matrix:
                 for k in range(3):
                     self.m[i,j*3+k]=b[k]
         myset.zero_currents()
-            
+        
     def check_field_graphically(self,myset,myarray):
         # test each coil by graphing field at each sensor
         for i in range(myset.numcoils):
