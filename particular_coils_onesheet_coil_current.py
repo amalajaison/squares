@@ -14,7 +14,7 @@ import csv
 
 import numpy as np
 
-sensors = np.float64((
+sensors=np.float64((
     (-0.25, -0.25, -0.25),
     (-0.25, -0.25,  0),
     (-0.25, -0.25,  0.25),
@@ -43,14 +43,15 @@ sensors = np.float64((
     (0.25, 0.25, 0.25)
 ))
 
-print('sensors_xyz:', sensors)
+
+print('sensors_xyz:',sensors)
 
 vec_smallm=[] #initizes an empty array pof vec_capitalM
 
 #building shape and size of matrix
 
 coils=np.ones((54,1))
-print(np.shape(coils),coils)
+#print(np.shape(coils),coils)
                    
 m=np.zeros((54,81))
 print(np.shape(m),m)
@@ -76,7 +77,9 @@ for i in range(54):  # coils from 0 to 53
                     for j in range(81):
                          #sensors=[float(value) for value in line.strip().split()[0:3]]]
                          b_prime=[float(value) for value in line.strip().split()[:3]]
-                         bx,by,bz=coils[i].b_prime(sensors[j][0],sensors[j][1],sensors[j][2])
+                         print('b_prime is:',b_prime)
+                         r=sensors[j]
+                         bx,by,bz=coils[i].b_prime(r[0],r[1],r[2])
                          b=[bx,by,bz]
                          for k in range(3):
                     #vec_M=[float(value) for value in line.strip().split()[:3]]
@@ -85,7 +88,6 @@ for i in range(54):  # coils from 0 to 53
                 except ValueError:
                     print(f"skipping invalid line: {line}")
 
-                        
 
 #print(f"vec_smallm:{vec_smallm[:5]}")
 #print(f"vec_capitalM is: {vec_capitalM}")
