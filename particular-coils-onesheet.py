@@ -15,6 +15,7 @@
 #Fri July 19 2024, Modeste added the opting to draw the msr and coroplast set up at line 1056 run with options -p.
 
 
+
 from scipy.constants import mu_0, pi
 import numpy as np
 from patchlib.patch import *
@@ -761,7 +762,29 @@ if(options.matrices):
 #print(len(myarray.vec_b()),myarray.vec_b())
 #vec_i=mymatrix.Minvp.dot(myarray.vec_b())
 vec_i=mymatrix.Minv.dot(myarray.vec_b())
-#print(vec_i)
+print('vec_i is:',vec_i)
+
+#generating a current_onesheet.csv file
+
+max_unnormalized_current=np.max(np.abs(vec_i)) # arb. units
+max_normalized_current=0.04 # Amperes
+calibration_factor=max_normalized_current/max_unnormalized_current
+calibrated_vec_i=vec_i*calibration_factor # Amperes
+
+channel_number =np.arange(50)
+my_calibrated_array_i=calibrated_vec_i.reshape(-1,1) # Amperes
+print('my calibrated currents array',my_calibrated_array_i)
+print('my calibrated currents array',size(my_calibrated_array_i))
+
+import csv
+
+with open('current_oneshet.csv','w', newline='') as csvfile:
+        fields=['channel_number','calibrated_vec_i']
+        writer=csv.DictWriter(csvfile, delimiter=',', lineterminator='\n',fieldnames=fields)
+        writer.writeheader()
+        data=(channel_number,my_calibrated_array_i)
+        for cn,ci in zip(channel_number, my_calibrated_array_i):
+            writer.writerow({'channel_number':cn, 'calibrated_vec_i':ci[0]}) 
 
 # Assign currents to coilcube
 

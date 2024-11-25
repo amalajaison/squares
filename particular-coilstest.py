@@ -20,6 +20,7 @@
 
 
 
+
 from scipy.constants import mu_0, pi
 import numpy as np
 from patchlib.patch import *
@@ -1031,7 +1032,7 @@ fig9.savefig("/home/jmartin/Desktop/delete_later/Bz_along_x-axis-l0_m1.png",dpi=
 
 plt.show()
 
-print(vec_i)
+print('vec_i is:',vec_i)
 max_unnormalized_current=np.max(np.abs(vec_i)) # arb. units
 max_normalized_current=0.04 # Amperes
 calibration_factor=max_normalized_current/max_unnormalized_current
