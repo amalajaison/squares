@@ -55,3 +55,5 @@ print(np.shape(capital_M),'capital_M is ',capital_M)
 vec_i=capital_M.dot(vec_b)
 print('vec_i is:',vec_i)
 
+
+
