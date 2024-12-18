@@ -548,7 +548,10 @@ for i in range(9):
 # Ceiling (45 to 53)
 for i in range(9):
     coils[f'Ceiling_{i}']=(45 + i, 'Ceiling')
+print()
+print(len(coils))
 print(coils)
+
 
 ##################################################
 
@@ -657,33 +660,27 @@ def plot_coil_number(ax, x, y, z, number):
 
 # Function to plot the coil numbering logic
 def plot_coil_logics_and_walls(ax):
-    coil_spacing = 1  # Arbitrary spacing between coils
-
+    coil_spacing=1  # Arbitrary spacing between coils
     # East wall (0 to 8)
     for i in range(9):
         # For East wall, set position at x=0, y varies from 0 to 8, z=0
         plot_coil_number(ax, 0, i * coil_spacing, 0, i)
-
     # West wall (9 to 17) - mirror of East wall
     for i in range(9):
         # For West wall, set position at x=10, y varies from 0 to 8, z=0
         plot_coil_number(ax, 10, i * coil_spacing, 0, 9 + i)
-
     # North wall (18 to 26)
     for i in range(9):
         # For North wall, set position at y=0, x varies from 0 to 8, z=0
         plot_coil_number(ax, i * coil_spacing, 0, 0, 18 + i)
-
     # South wall (27 to 35) - mirror of North wall
     for i in range(9):
         # For South wall, set position at y=10, x varies from 0 to 8, z=0
         plot_coil_number(ax, i * coil_spacing, 10, 0, 27 + i)
-
     # Floor (36 to 46)
     for i in range(9):
         # Floor coils are placed at z=-5 and vary along x and y
         plot_coil_number(ax, i * coil_spacing, i * coil_spacing, -5, 36 + i)
-
     # Ceiling (45 to 53) - updated range for 9 coils
     for i in range(9):
         # Ceiling coils are placed at z=5 and vary along x and y
