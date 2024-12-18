@@ -24,9 +24,10 @@ U, s, VT=np.linalg.svd(m, full_matrices=True)
 
 for i in range(54):  # coils from coilnum00 to coilnum53
     file=f"coilnum{i:02d}" 
-    print(f"Loading data from: {file}.txt")
+    print(f"Loading data from: {file}.txt\n")
     b_coil=np.zeros((81,1))  #magnetic field value for  each coils
     print(np.shape(b_coil),'b for each coil is:',b_coil)
+    
     with open(f'{file}.txt','r') as f:
         lines=f.readlines()
         header=lines[0].strip()
@@ -39,7 +40,7 @@ for i in range(54):  # coils from coilnum00 to coilnum53
                     continue
                 for j in range(27):
                     bx,by,bz=values[3],values[4],values[5]
-                    print(f"Coil{file},Sensor{j:02d},Bx:{bx},By:{by},Bz:{bz}")
+                    print(f"Coil{file},Sensor{j:02d},Bx:{bx},By:{by},Bz:{bz}\n")
                     b_coil=[bx,by,bz]
                     print(b_coil)
                     for k in range(3):
@@ -54,6 +55,5 @@ print(np.shape(capital_M),'capital_M is ',capital_M)
 
 vec_i=capital_M.dot(vec_b)
 print('vec_i is:',vec_i)
-
 
 

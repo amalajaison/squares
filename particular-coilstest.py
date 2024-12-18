@@ -1206,7 +1206,7 @@ if(options.axes and options.wiggle):
     fig7,(ax71)=plt.subplots(nrows=1)
     fig8,(ax81)=plt.subplots(nrows=1)
     fig9,(ax91)=plt.subplots(nrows=1)
-    
+    #xscan plot
     ax71.plot(points1d[mask],bz1d_xscan[mask],label='$B_z(x,0,0)$')
     ax71.plot(points1d[mask],bz1d_target_xscan[mask],label='target $B_z(x,0,0)$')
     ax71.plot(points1d[mask],bz1d_yscan[mask],label='$B_z(0,y,0)$')
@@ -1224,7 +1224,7 @@ if(options.axes and options.wiggle):
         ax71.axvline(x=-a/2,color='black',linestyle='--')
         ax71.axvline(x=a_sensors/2,color='red',linestyle='--')
         ax71.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
+    #yscan plot
     ax81.plot(points1d[mask],by1d_xscan[mask],label='$B_y(x,0,0)$')
     ax81.plot(points1d[mask],by1d_target_xscan[mask],label='target $B_y(x,0,0)$')
     ax81.plot(points1d[mask],by1d_yscan[mask],label='$B_y(0,y,0)$')
@@ -1242,7 +1242,7 @@ if(options.axes and options.wiggle):
         ax81.axvline(x=a_sensors/2,color='red',linestyle='--')
         ax81.axvline(x=-a_sensors/2,color='red',linestyle='--')
 
-
+    #zscan plot
     ax91.plot(points1d[mask],bx1d_xscan[mask],label='$B_x(x,0,0)$')
     ax91.plot(points1d[mask],bx1d_target_xscan[mask],label='target $B_x(x,0,0)$')
     ax91.plot(points1d[mask],bx1d_yscan[mask],label='$B_x(0,y,0)$')

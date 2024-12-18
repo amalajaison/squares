@@ -24,6 +24,9 @@ from dipole import *
 
 from pipesfitting import *
 
+#from arduino_current_controller_routines import *
+
+
 from optparse import OptionParser
 
 parser = OptionParser()
@@ -520,6 +523,35 @@ myset.add_coil(bott_mr)
 myset.add_coil(bott_mt)
 myset.add_coil(bott_mb)
 
+# Coil numbering logic
+coils = {}
+# East wall (0 to 8)
+for i in range(9):
+    coils[f'East_{i}']=(i, 'East')
+
+# West wall (9 to 17) - mirror of East wall
+for i in range(9):
+    coils[f'West_{i}']=(9 + i, 'West')
+
+# North wall (18 to 26)
+for i in range(9):
+    coils[f'North_{i}']=(18 + i, 'North')
+
+# South wall (27 to 35) - mirror of North wall
+for i in range(9):
+    coils[f'South_{i}']=(27 + i, 'South')
+
+# Floor (36 to 46)
+for i in range(9):
+    coils[f'Floor_{i}']=(36 + i, 'Floor')
+
+# Ceiling (45 to 53)
+for i in range(9):
+    coils[f'Ceiling_{i}']=(45 + i, 'Ceiling')
+print(coils)
+
+##################################################
+
 class sensor:
     def __init__(self,pos):
         self.pos = pos
@@ -610,29 +642,106 @@ if(options.traces):
     ax.set_ylabel('y (m)')
     ax.set_zlabel('z (m)')
     plt.show()
+########################################
 
-if(options.makeplots):   #drawing the coroplast and msr walls
-    # Draw wires
-    fig1 = plt.figure(figsize=(9.5,9.5))
-    ax4 = myset.draw_layout(fig1,title_add = " - OneWall",arrow=False,poslabel=False,drawL5=True,drawL6=True)
-    
-    #draw corroplast
-    DrawCoruplast(ax4[0],ax4[1],ax4[2])
-    
-    # initialize pipes
-    backpipesDraw = sparsepipelist()
-    wallpipesDraw = pipelist()
+#drawing the coroplast and msr walls
 
-    QuickFeedThroughs(wallpipesDraw,backpipesDraw,color="grey") #plotting unrerouted holes in new color.
-    
-    # draw pipes
-    text=False
-    for piplist in [backpipesDraw,wallpipesDraw]:
-        piplist.draw_yz(ax4[1],text=text,div_rad=51)
-        piplist.draw_xy(ax4[2],text=text,div_rad=51)
-        piplist.draw_xz(ax4[0],text=text,div_rad=51)
-    plt.savefig("/Users/modestekatotoka/Desktop/tucan_2024/tucan/modeste_squares/squares/msr_walls_figure/msr_walls_figures.png",dpi=300,bbox_inches='tight')
-    plt.show() #saving directory for the msr walls figure
+if(options.makeplots):
+    import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+
+# Function to add coil numbers to the plot
+def plot_coil_number(ax, x, y, z, number):
+    ax.text(x, y, z, str(number), fontsize=12, ha='center', va='center', color='black')
+
+# Function to plot the coil numbering logic
+def plot_coil_logics_and_walls(ax):
+    coil_spacing = 1  # Arbitrary spacing between coils
+
+    # East wall (0 to 8)
+    for i in range(9):
+        # For East wall, set position at x=0, y varies from 0 to 8, z=0
+        plot_coil_number(ax, 0, i * coil_spacing, 0, i)
+
+    # West wall (9 to 17) - mirror of East wall
+    for i in range(9):
+        # For West wall, set position at x=10, y varies from 0 to 8, z=0
+        plot_coil_number(ax, 10, i * coil_spacing, 0, 9 + i)
+
+    # North wall (18 to 26)
+    for i in range(9):
+        # For North wall, set position at y=0, x varies from 0 to 8, z=0
+        plot_coil_number(ax, i * coil_spacing, 0, 0, 18 + i)
+
+    # South wall (27 to 35) - mirror of North wall
+    for i in range(9):
+        # For South wall, set position at y=10, x varies from 0 to 8, z=0
+        plot_coil_number(ax, i * coil_spacing, 10, 0, 27 + i)
+
+    # Floor (36 to 46)
+    for i in range(9):
+        # Floor coils are placed at z=-5 and vary along x and y
+        plot_coil_number(ax, i * coil_spacing, i * coil_spacing, -5, 36 + i)
+
+    # Ceiling (45 to 53) - updated range for 9 coils
+    for i in range(9):
+        # Ceiling coils are placed at z=5 and vary along x and y
+        plot_coil_number(ax, i * coil_spacing, i * coil_spacing, 5, 45 + i)
+
+# Function to plot walls with the coil numbering logic
+def plot_walls_with_coil_logic():
+    # Plot the existing layout
+    fig = plt.figure(figsize=(12, 12))
+    ax = fig.add_subplot(111, projection='3d')
+
+    plot_coil_logics_and_walls(ax)
+
+    # Labels and settings
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title('Coil Layout with Numbering')
+
+    # Set the limits and show the plot
+    ax.set_xlim([-1, 11])
+    ax.set_ylim([-1, 11])
+    ax.set_zlim([-6, 6])
+
+    # Show plot
+    plt.show()
+
+# Run the function to display the plot
+plot_walls_with_coil_logic()
+
+# Draw wires (outside plot logic)
+fig1 = plt.figure(figsize=(9.5,9.5))
+
+# Make sure myset is defined and its draw_layout method is available
+ax4 = myset.draw_layout(fig1, title_add=" - OneWall", arrow=False, poslabel=False, drawL5=True, drawL6=True)
+
+# Draw coroplast (assuming the function exists)
+DrawCoruplast(ax4[0], ax4[1], ax4[2])
+
+# Initialize pipes (ensure these are defined)
+backpipesDraw = sparsepipelist()
+wallpipesDraw = pipelist()
+
+# Plot unrerouted holes in a new color
+QuickFeedThroughs(wallpipesDraw, backpipesDraw, color="grey")
+
+# Draw pipes
+text = False
+for piplist in [backpipesDraw, wallpipesDraw]:
+    piplist.draw_yz(ax4[1], text=text, div_rad=51)
+    piplist.draw_xy(ax4[2], text=text, div_rad=51)
+    piplist.draw_xz(ax4[0], text=text, div_rad=51)
+
+# Save the figure
+plt.savefig("/Users/modestekatotoka/Desktop/tucan_2024/tucan/modeste_squares/squares/msr_walls_figure/msr_walls_figures.png", dpi=300, bbox_inches='tight')
+
+# Show the final plot
+plt.show()
 
 from matplotlib import cm
 
@@ -920,6 +1029,8 @@ if(options.residuals):
 
 plt.show()
 
+print('vec_i is:',vec_i)
+
 #generating a current_onesheet.csv file
 
 max_unnormalized_current=np.max(np.abs(vec_i)) # arb. units
@@ -943,6 +1054,7 @@ with open('current_oneshet.csv','w', newline='') as csvfile:
             writer.writerow({'channel_number':cn, 'calibrated_vec_i':ci[0]})
 
 # Now let's check what the field should be after setting these currents
+
 myset.set_currents(calibrated_vec_i)
 
 # the field at the centre of the coilcube
@@ -981,7 +1093,7 @@ if(options.axes and not options.wiggle):
     fig7,(ax71)=plt.subplots(nrows=1)
     fig8,(ax81)=plt.subplots(nrows=1)
     fig9,(ax91)=plt.subplots(nrows=1)
-    
+    #xscan plots
     ax71.plot(points1d[mask],bz1d_xscan[mask],label='$B_z(x,0,0)$')
     ax71.plot(points1d[mask],bz1d_target_xscan[mask],label='target $B_z(x,0,0)$')
     ax71.plot(points1d[mask],bz1d_yscan[mask],label='$B_z(0,y,0)$')
@@ -999,7 +1111,7 @@ if(options.axes and not options.wiggle):
         ax71.axvline(x=-a/2,color='black',linestyle='--')
         ax71.axvline(x=a_sensors/2,color='red',linestyle='--')
         ax71.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
+    #yscan plots
     ax81.plot(points1d[mask],by1d_xscan[mask],label='$B_y(x,0,0)$')
     ax81.plot(points1d[mask],by1d_target_xscan[mask],label='target $B_y(x,0,0)$')
     ax81.plot(points1d[mask],by1d_yscan[mask],label='$B_y(0,y,0)$')
@@ -1016,7 +1128,7 @@ if(options.axes and not options.wiggle):
         ax81.axvline(x=-a/2,color='black',linestyle='--')
         ax81.axvline(x=a_sensors/2,color='red',linestyle='--')
         ax81.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
+    #zscan plots
     ax91.plot(points1d[mask],bx1d_xscan[mask],label='$B_x(x,0,0)$')
     ax91.plot(points1d[mask],bx1d_target_xscan[mask],label='target $B_x(x,0,0)$')
     ax91.plot(points1d[mask],bx1d_yscan[mask],label='$B_x(0,y,0)$')
@@ -1042,7 +1154,19 @@ if(options.axes and not options.wiggle):
     ax81.legend()
     ax91.legend()
 
+    np.savetxt('xscan_onesheet.out',np.transpose((points1d[mask],bx1d_xscan[mask],by1d_xscan[mask],bz1d_xscan[mask])))
+    np.savetxt('xscan_onesheet_target.out',np.transpose((points1d[mask],bx1d_target_xscan[mask],by1d_target_xscan[mask],bz1d_target_xscan[mask])))
+
+    np.savetxt('yscan_onesheet.out',np.transpose((points1d[mask],bx1d_xscan[mask],by1d_xscan[mask],bz1d_xscan[mask])))
+    np.savetxt('yscan_onesheet_target.out',np.transpose((points1d[mask],bx1d_target_xscan[mask],by1d_target_xscan[mask],bz1d_target_yscan[mask])))
+
+    np.savetxt('zscan_onesheet.out',np.transpose((points1d[mask],bx1d_xscan[mask],by1d_xscan[mask],bz1d_xscan[mask])))
+    np.savetxt('zscan_onesheet_target.out',np.transpose((points1d[mask],bx1d_target_xscan[mask],by1d_target_xscan[mask],bz1d_target_zscan[mask])))
+
 plt.show()
+
+###########################################################################################
+#Coils Deformation studies, run with -w
 
 # Now let's move some coils
 myset.set_currents(calibrated_vec_i)
@@ -1059,304 +1183,6 @@ if(options.traces and options.wiggle):
     ax.set_zlabel('z (m)')
     plt.show()
 
-
-'''
-# studies over an ROI
-
-#x,y,z=np.mgrid[-.25:.25:51j,-.25:.25:51j,-.25:.25:51j]
-#x,y,z=np.mgrid[-.49:.49:99j,-.49:.49:99j,-.49:.49:99j]
-x,y,z=np.mgrid[-.5:.5:101j,-.5:.5:101j,-.5:.5:101j]
-
-if(options.incells):
-    rcell=0.3 # m, cell radius
-    hcell=0.1601 # m, cell height
-    dcell=0.08 # m, bottom to top distance of cells
-    mask=(abs(z)>=dcell/2)&(abs(z)<=dcell/2+hcell)&(x**2+y**2<rcell**2)
-    mask_upper=(abs(z)>=dcell/2)&(abs(z)<=dcell/2+hcell)&(x**2+y**2<rcell**2)&(z>0)
-    mask_lower=(abs(z)>=dcell/2)&(abs(z)<=dcell/2+hcell)&(x**2+y**2<rcell**2)&(z<0)
-else:
-    mask=np.full(np.shape(z),True)
-    mask_upper=(z>0)
-    mask_lower=(z<0)
-
-# This is used to test the cell dimensions.
-
-#fig=plt.figure()
-#ax=fig.add_subplot(111,projection='3d')
-#scat=ax.scatter(x[mask_upper],y[mask_upper],z[mask_upper])
-#plt.show()
-
-bx_roi,by_roi,bz_roi=myset.b_prime(x,y,z)
-bx_target=bxtarget(x,y,z)
-by_target=bytarget(x,y,z)
-bz_target=bztarget(x,y,z)
-bx_residual=bx_roi-bx_target
-by_residual=by_roi-by_target
-bz_residual=bz_roi-bz_target
-
-
-# type and shape of bz_target
-print("Type of bz_target:", type(bz_target))
-print("Shape of bz_target:", np.shape(bz_target))
-
-# bz_target is an array?
-if not isinstance(bz_target, np.ndarray):
-    raise ValueError("bz_target must be an array") #error raises when running with l=0,m=0
-
-
-
-print(np.shape(bx_roi))
-
-print('Statistics on the ROI')
-print
-
-#print('bz_target',bz_target)
-
-
-bz_ave=np.average(bz_target)
-print('The unmasked average Bz prior to correction is %e'%bz_ave)
-bz_max=np.amax(bz_target)
-bz_min=np.amin(bz_target)
-bz_delta=bz_max-bz_min
-print('The unmasked max/min/diff Bz are %e %e %e'%(bz_max,bz_min,bz_delta))
-print('We normalize this to 3 nT max-min')
-print
-
-print('Both cells')
-bz_mask_max=np.amax(bz_target[mask])
-bz_mask_min=np.amin(bz_target[mask])
-bz_mask_delta=bz_mask_max-bz_mask_min
-print('The max/min/diff Bz masks are %e %e %e'%(bz_mask_max,bz_mask_min,bz_mask_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_mask_delta/bz_delta*3))
-bz_std=np.std(bz_target[mask])
-print('The masked standard deviation of Bz is %e'%bz_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_std/bz_delta*3))
-print
-
-bz_residual_max=np.amax(bz_residual[mask])
-bz_residual_min=np.amin(bz_residual[mask])
-bz_residual_delta=bz_residual_max-bz_residual_min
-print('The max/min/diff Bz residuals are %e %e %e'%(bz_residual_max,bz_residual_min,bz_residual_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_residual_delta/bz_delta*3))
-bz_residual_std=np.std(bz_residual[mask])
-print('The standard deviation of Bz residuals is %e'%bz_residual_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_residual_std/bz_delta*3))
-print
-
-print('Upper cell')
-bz_mask_max=np.amax(bz_target[mask_upper])
-bz_mask_min=np.amin(bz_target[mask_upper])
-bz_mask_delta=bz_mask_max-bz_mask_min
-print('The max/min/diff Bz masks are %e %e %e'%(bz_mask_max,bz_mask_min,bz_mask_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_mask_delta/bz_delta*3))
-bz_std=np.std(bz_target[mask_upper])
-print('The masked standard deviation of Bz is %e'%bz_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_std/bz_delta*3))
-print
-
-bz_residual_max=np.amax(bz_residual[mask_upper])
-bz_residual_min=np.amin(bz_residual[mask_upper])
-bz_residual_delta=bz_residual_max-bz_residual_min
-print('The max/min/diff Bz residuals are %e %e %e'%(bz_residual_max,bz_residual_min,bz_residual_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_residual_delta/bz_delta*3))
-bz_residual_std=np.std(bz_residual[mask_upper])
-print('The standard deviation of Bz residuals is %e'%bz_residual_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_residual_std/bz_delta*3))
-print
-
-print('Lower cell')
-bz_mask_max=np.amax(bz_target[mask_lower])
-bz_mask_min=np.amin(bz_target[mask_lower])
-bz_mask_delta=bz_mask_max-bz_mask_min
-print('The max/min/diff Bz masks are %e %e %e'%(bz_mask_max,bz_mask_min,bz_mask_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_mask_delta/bz_delta*3))
-bz_std=np.std(bz_target[mask_lower])
-print('The masked standard deviation of Bz is %e'%bz_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_std/bz_delta*3))
-print
-
-bz_residual_max=np.amax(bz_residual[mask_lower])
-bz_residual_min=np.amin(bz_residual[mask_lower])
-bz_residual_delta=bz_residual_max-bz_residual_min
-print('The max/min/diff Bz residuals are %e %e %e'%(bz_residual_max,bz_residual_min,bz_residual_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_residual_delta/bz_delta*3))
-bz_residual_std=np.std(bz_residual[mask_lower])
-print('The standard deviation of Bz residuals is %e'%bz_residual_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_residual_std/bz_delta*3))
-print
-
-
-bt2_target=bx_target**2+by_target**2+bz_target**2
-bt2_ave=np.average(bt2_target[mask])
-print('The BT2 prior to correction is %e'%bt2_ave)
-bt2_ave_norm=bt2_ave*3**2/bz_delta**2
-print('Normalized is %f nT^2'%(bt2_ave_norm))
-
-bt2_residual=bx_residual**2+by_residual**2+bz_residual**2
-bt2_residual_ave=np.average(bt2_residual[mask])
-print('The BT2 after correction is %e'%bt2_residual_ave)
-bt2_residual_ave_norm=bt2_residual_ave*3**2/bz_delta**2
-print('Normalized is %f nT^2'%(bt2_residual_ave_norm))
-print
-
-print('The normalized currents are:')
-vec_i=vec_i*3e-9/bz_delta
-print(vec_i)
-print('The maximum current is %f A'%np.amax(vec_i))
-print('The minimum current is %f A'%np.amin(vec_i))
-
-n=14 # number of bits
-#Igoal=round(np.amax(vec_i)*1000)
-Imin=-0.025 # minimum current (A)
-Imax=0.025 # maximum current (A)
-deltaI=Imax-Imin # full range of current, which I'll distribute my bits across.
-
-print("Distributing %d bits across %f A"%(n,deltaI))
-
-def bits(I):
-    return np.rint((I-Imin)/deltaI*(2**n-1))
-
-def true_current(b):
-    return deltaI/(2**n-1)*b+Imin
-
-print('The bits are',bits(vec_i))
-
-dig_i=true_current(bits(vec_i))
-
-print('The digitized currents are',dig_i)
-
-dig_i_reunnormalized=dig_i/3e-9*bz_delta
-
-#trying to plot normalized and digitized currents vs number coils? 
-
-#cn=list(range(0,50)) #number of coils
-#plt.plot(cn,vec_i,label='normalized currents')
-#plt.plot(cn,true_current(bits(vec_i)),label='digitized currents')
-#plt.show()
-
-myset.set_currents(dig_i_reunnormalized)
-
-points1d=np.mgrid[-1:1:101j]
-bx1d_xscan,by1d_xscan,bz1d_xscan=myset.b_prime(points1d,0.,0.)
-bx1d_yscan,by1d_yscan,bz1d_yscan=myset.b_prime(0.,points1d,0.)
-bx1d_zscan,by1d_zscan,bz1d_zscan=myset.b_prime(0.,0.,points1d)
-
-if(options.zoom):
-    mask=(points1d>=-a_sensors/2)&(points1d<=a_sensors/2)
-else:
-    mask=np.full(np.shape(points1d),True)
-
-if(options.axes):
-    fig7,(ax71)=plt.subplots(nrows=1)
-    fig8,(ax81)=plt.subplots(nrows=1)
-    fig9,(ax91)=plt.subplots(nrows=1)
-    
-    ax71.plot(points1d[mask],bz1d_xscan[mask],label='$B_z(x,0,0)$')
-    ax71.plot(points1d[mask],bz1d_target_xscan[mask],label='target $B_z(x,0,0)$')
-    ax71.plot(points1d[mask],bz1d_yscan[mask],label='$B_z(0,y,0)$')
-    ax71.plot(points1d[mask],bz1d_target_yscan[mask],label='target $B_z(0,y,0)$')
-    ax71.plot(points1d[mask],bz1d_zscan[mask],label='$B_z(0,0,z)$')
-    ax71.plot(points1d[mask],bz1d_target_zscan[mask],label='target $B_z(0,0,z)$')
-    ax71.set_xlabel('x, y, or z (m)')
-    from sympy import latex
-    if(options.dipole):
-        ax71.set_ylabel('$B_z=dipole$')
-    else:
-        ax71.set_ylabel('$B_z=\Pi_{z,%d,%d}=%s$'%(l,m,latex(sp.Piz)))
-    if(not options.zoom):
-        ax71.axvline(x=a/2,color='black',linestyle='--')
-        ax71.axvline(x=-a/2,color='black',linestyle='--')
-        ax71.axvline(x=a_sensors/2,color='red',linestyle='--')
-        ax71.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
-    ax81.plot(points1d[mask],by1d_xscan[mask],label='$B_y(x,0,0)$')
-    ax81.plot(points1d[mask],by1d_target_xscan[mask],label='target $B_y(x,0,0)$')
-    ax81.plot(points1d[mask],by1d_yscan[mask],label='$B_y(0,y,0)$')
-    ax81.plot(points1d[mask],by1d_target_yscan[mask],label='target $B_y(0,y,0)$')
-    ax81.plot(points1d[mask],by1d_zscan[mask],label='$B_y(0,0,z)$')
-    ax81.plot(points1d[mask],by1d_target_zscan[mask],label='target $B_y(0,0,z)$')
-    ax81.set_xlabel('x, y, or z (m)')
-    if(options.dipole):
-        ax81.set_ylabel('$B_y=dipole$')
-    else:
-        ax81.set_ylabel('$B_y=\Pi_{y,%d,%d}=%s$'%(l,m,latex(sp.Piy)))
-    if(not options.zoom):
-        ax81.axvline(x=a/2,color='black',linestyle='--')
-        ax81.axvline(x=-a/2,color='black',linestyle='--')
-        ax81.axvline(x=a_sensors/2,color='red',linestyle='--')
-        ax81.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
-    ax91.plot(points1d[mask],bx1d_xscan[mask],label='$B_x(x,0,0)$')
-    ax91.plot(points1d[mask],bx1d_target_xscan[mask],label='target $B_x(x,0,0)$')
-    ax91.plot(points1d[mask],bx1d_yscan[mask],label='$B_x(0,y,0)$')
-    ax91.plot(points1d[mask],bx1d_target_yscan[mask],label='target $B_x(0,y,0)$')
-    ax91.plot(points1d[mask],bx1d_zscan[mask],label='$B_x(0,0,z)$')
-    ax91.plot(points1d[mask],bx1d_target_zscan[mask],label='target $B_x(0,0,z)$')
-    ax91.set_xlabel('x, y, or z (m)')
-    if(options.dipole):
-        ax91.set_ylabel('$B_x=dipole$')
-    else:
-        ax91.set_ylabel('$B_x=\Pi_{x,%d,%d}=%s$'%(l,m,latex(sp.Pix)))
-    if(not options.zoom):
-        ax91.axvline(x=a/2,color='black',linestyle='--')
-        ax91.axvline(x=-a/2,color='black',linestyle='--')
-        ax91.axvline(x=a_sensors/2,color='red',linestyle='--')
-        ax91.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
-    ax71.axhline(y=0,color='black')
-    ax81.axhline(y=0,color='black')
-    ax91.axhline(y=0,color='black')
-    
-    ax71.legend()
-    ax81.legend()
-    ax91.legend()
-
-
-if(options.residuals):
-
-    ax101=plt.figure(101)
-    plt.plot(points1d[mask],bz1d_xscan[mask]-bz1d_target_xscan[mask],label='residual $B_z(x,0,0)$')
-    plt.plot(points1d[mask],bz1d_yscan[mask]-bz1d_target_yscan[mask],label='residual $B_z(0,y,0)$')
-    plt.plot(points1d[mask],bz1d_zscan[mask]-bz1d_target_zscan[mask],label='residual $B_z(0,0,z)$')
-    plt.xlabel('x, y, or z (m)')
-    plt.ylabel('residual $B_z$ (true-target)')
-    plt.legend()
-    if(not options.zoom):
-        plt.axvline(x=a/2,color='black',linestyle='--')
-        plt.axvline(x=-a/2,color='black',linestyle='--')
-        plt.axvline(x=a_sensors/2,color='red',linestyle='--')
-        plt.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
-    ax102=plt.figure(102)
-    plt.plot(points1d[mask],by1d_xscan[mask]-by1d_target_xscan[mask],label='residual $B_y(x,0,0)$')
-    plt.plot(points1d[mask],by1d_yscan[mask]-by1d_target_yscan[mask],label='residual $B_y(0,y,0)$')
-    plt.plot(points1d[mask],by1d_zscan[mask]-by1d_target_zscan[mask],label='residual $B_y(0,0,z)$')
-    plt.xlabel('x, y, or z (m)')
-    plt.ylabel('residual $B_y$ (true-target)')
-    plt.legend()
-    if(not options.zoom):
-        plt.axvline(x=a/2,color='black',linestyle='--')
-        plt.axvline(x=-a/2,color='black',linestyle='--')
-        plt.axvline(x=a_sensors/2,color='red',linestyle='--')
-        plt.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
-    ax103=plt.figure(103)
-    plt.plot(points1d[mask],bx1d_xscan[mask]-bx1d_target_xscan[mask],label='residual $B_x(x,0,0)$')
-    plt.plot(points1d[mask],bx1d_yscan[mask]-bx1d_target_yscan[mask],label='residual $B_x(0,y,0)$')
-    plt.plot(points1d[mask],bx1d_zscan[mask]-bx1d_target_zscan[mask],label='residual $B_x(0,0,z)$')
-    plt.xlabel('x, y, or z (m)')
-    plt.ylabel('residual $B_x$ (true-target)')
-    plt.legend()
-    if(not options.zoom):
-        plt.axvline(x=a/2,color='black',linestyle='--')
-        plt.axvline(x=-a/2,color='black',linestyle='--')
-        plt.axvline(x=a_sensors/2,color='red',linestyle='--')
-        plt.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
-#plt.savefig("/Users/modestekatotoka/Desktop/tucan_2024/tucan/modeste_squares/squares/msr_walls_figure/test.png",dpi=300,bbox_inches='tight')
-
-plt.show()
-'''
 # output metadata, so that we know what's in these data files
 
 from sympy import latex
@@ -1372,3 +1198,31 @@ data={
 import json
 with open('data.json', 'w') as f:
     json.dump(data, f)
+
+#########################################################################################
+
+#graphing the data from x-,y-,z-scan.out containing the the theoretical target fields and compare with simulations.
+
+# load theoretical fields
+
+data=np.transpose(np.loadtxt('xscan_onesheet.out'))
+x_sim,bx_sim,by_sim,bz_sim=data
+bx_sim=bx_sim*1e9 # convert to nT
+by_sim=by_sim*1e9
+bz_sim=bz_sim*1e9
+
+data=np.transpose(np.loadtxt('yscan_onesheet.out'))
+x_sim,bx_sim,by_sim,bz_sim=data
+bx_sim=bx_sim*1e9 # convert to nT
+by_sim=by_sim*1e9
+bz_sim=bz_sim*1e9
+
+data=np.transpose(np.loadtxt('zscan_onesheet.out'))
+x_sim,bx_sim,by_sim,bz_sim=data
+bx_sim=bx_sim*1e9 # convert to nT
+by_sim=by_sim*1e9
+bz_sim=bz_sim*1e9
+
+#meta data from theoretical fields.
+with open('data.json') as json_file:
+    graphdata=json.load(json_file)
