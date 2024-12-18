@@ -131,7 +131,6 @@ x4=xface
 point4=(x4,y4,z4)
 points_ur=(point1,point2,point3,point4)
 points_ur=np.array(points_ur)
-myset.add_coil(points_ur)
 
 # Now add mirror images of these
 point1=(x1,-y1,z1)
@@ -140,7 +139,6 @@ point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
 points_ul=(point1,point2,point3,point4)
 points_ul=np.array(points_ul)
-myset.add_coil(points_ul)
 
 point1=(x1,-y1,-z1)
 point2=(x2,-y2,-z2)
@@ -148,7 +146,6 @@ point3=(x3,-y3,-z3)
 point4=(x4,-y4,-z4)
 points_ll=(point1,point2,point3,point4)
 points_ll=np.array(points_ll)
-myset.add_coil(points_ll)
 
 point1=(x1,y1,-z1)
 point2=(x4,y4,-z4)
@@ -156,7 +153,6 @@ point3=(x3,y3,-z3)
 point4=(x2,y2,-z2)
 points_lr=(point1,point2,point3,point4)
 points_lr=np.array(points_lr)
-myset.add_coil(points_lr)
 
 # now the central coil
 x1=xface
@@ -168,7 +164,6 @@ point3=(x1,-y1,-z1)
 point4=(x1,-y1,z1)
 points_c=(point1,point2,point3,point4)
 points_c=np.array(points_c)
-myset.add_coil(points_c)
 
 # now the right side coil
 x1=xface
@@ -190,7 +185,6 @@ point4=(x4,y4,z4)
 points_mr=(point1,point2,point3,point4)
 print('points_mr',points_mr)
 points_mr=np.array(points_mr)
-myset.add_coil(points_mr)
 
 # now the left side coil -- reflect and wind in same direction
 point1=(x1,-y1,z1)
@@ -199,7 +193,6 @@ point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
 points_ml=(point1,point2,point3,point4)
 points_ml=np.array(points_ml)
-myset.add_coil(points_ml)
 
 # now the upper central coil
 x1=xface
@@ -221,7 +214,6 @@ point4=(x4,y4,z4)
 points_uc=(point1,point2,point3,point4)
 print('points_uc',points_uc)
 points_uc=np.array(points_uc)
-myset.add_coil(points_uc)
 
 # now the lower central coil -- reflect and wind in same direction
 point1=(x1,y1,-z1)
@@ -230,7 +222,41 @@ point3=(x3,y3,-z3)
 point4=(x2,y2,-z2)
 points_lc=(point1,point2,point3,point4)
 points_lc=np.array(points_lc)
+
+ 
+'''
+myset.add_coil(points_ur)
+myset.add_coil(points_ul)
+myset.add_coil(points_ll)
+myset.add_coil(points_lr)
+myset.add_coil(points_c)
+myset.add_coil(points_mr)
+myset.add_coil(points_ml)
+myset.add_coil(points_uc)
 myset.add_coil(points_lc)
+'''
+
+
+myset.add_coil(points_ur)
+myset.add_coil(points_uc)
+myset.add_coil(points_ul)
+myset.add_coil(points_mr)
+myset.add_coil(points_c)
+myset.add_coil(points_ml)
+myset.add_coil(points_lr)
+myset.add_coil(points_lc)
+myset.add_coil(points_ll)
+
+
+
+
+
+
+
+
+
+
+
 
 # now reflect them all to the other face: xface -> -xface
 def reflect_x(points):
@@ -240,23 +266,30 @@ def reflect_x(points):
     return newpoints
     
 oside_ur=reflect_x(points_ur)
-myset.add_coil(oside_ur)
 oside_ul=reflect_x(points_ul)
-myset.add_coil(oside_ul)
 oside_ll=reflect_x(points_ll)
-myset.add_coil(oside_ll)
 oside_lr=reflect_x(points_lr)
-myset.add_coil(oside_lr)
 oside_c=reflect_x(points_c)
-myset.add_coil(oside_c)
 oside_ml=reflect_x(points_ml)
-myset.add_coil(oside_ml)
 oside_mr=reflect_x(points_mr)
-myset.add_coil(oside_mr)
 oside_uc=reflect_x(points_uc)
-myset.add_coil(oside_uc)
 oside_lc=reflect_x(points_lc)
+
+
+myset.add_coil(oside_ur)
+myset.add_coil(oside_ul)
+myset.add_coil(oside_ll)
+myset.add_coil(oside_lr)
+myset.add_coil(oside_c)
+myset.add_coil(oside_ml)
+myset.add_coil(oside_mr)
+myset.add_coil(oside_uc)
 myset.add_coil(oside_lc)
+
+
+
+
+
 
 # Phew -- now onto the sides  (North/south walls)
     
@@ -523,6 +556,16 @@ myset.add_coil(bott_mr)
 myset.add_coil(bott_mt)
 myset.add_coil(bott_mb)
 
+#fix the winding direction of the coils.
+# flip coils that are in the wrong direction.
+
+myset.coil[22].flip_this_coil()
+#myset.coil[25].flip_this_coil()
+
+#re-ordering the coils
+#myset.swap_coils(0,7)
+
+
 # Coil numbering logic
 coils = {}
 # East wall (0 to 8)
@@ -645,7 +688,8 @@ if(options.traces):
     ax.set_ylabel('y (m)')
     ax.set_zlabel('z (m)')
     plt.show()
-########################################
+    
+#####################################################################
 
 #drawing the coroplast and msr walls
 
@@ -1154,11 +1198,11 @@ if(options.axes and not options.wiggle):
     np.savetxt('xscan_onesheet.out',np.transpose((points1d[mask],bx1d_xscan[mask],by1d_xscan[mask],bz1d_xscan[mask])))
     np.savetxt('xscan_onesheet_target.out',np.transpose((points1d[mask],bx1d_target_xscan[mask],by1d_target_xscan[mask],bz1d_target_xscan[mask])))
 
-    np.savetxt('yscan_onesheet.out',np.transpose((points1d[mask],bx1d_xscan[mask],by1d_xscan[mask],bz1d_xscan[mask])))
-    np.savetxt('yscan_onesheet_target.out',np.transpose((points1d[mask],bx1d_target_xscan[mask],by1d_target_xscan[mask],bz1d_target_yscan[mask])))
+    np.savetxt('yscan_onesheet.out',np.transpose((points1d[mask],bx1d_yscan[mask],by1d_yscan[mask],bz1d_yscan[mask])))
+    np.savetxt('yscan_onesheet_target.out',np.transpose((points1d[mask],bx1d_target_yscan[mask],by1d_target_yscan[mask],bz1d_target_yscan[mask])))
 
-    np.savetxt('zscan_onesheet.out',np.transpose((points1d[mask],bx1d_xscan[mask],by1d_xscan[mask],bz1d_xscan[mask])))
-    np.savetxt('zscan_onesheet_target.out',np.transpose((points1d[mask],bx1d_target_xscan[mask],by1d_target_xscan[mask],bz1d_target_zscan[mask])))
+    np.savetxt('zscan_onesheet.out',np.transpose((points1d[mask],bx1d_zscan[mask],by1d_zscan[mask],bz1d_zscan[mask])))
+    np.savetxt('zscan_onesheet_target.out',np.transpose((points1d[mask],bx1d_target_zscan[mask],by1d_target_zscan[mask],bz1d_target_zscan[mask])))
 
 plt.show()
 
