@@ -236,7 +236,6 @@ myset.add_coil(points_uc)
 myset.add_coil(points_lc)
 '''
 
-
 myset.add_coil(points_ur)
 myset.add_coil(points_uc)
 myset.add_coil(points_ul)
@@ -246,16 +245,6 @@ myset.add_coil(points_ml)
 myset.add_coil(points_lr)
 myset.add_coil(points_lc)
 myset.add_coil(points_ll)
-
-
-
-
-
-
-
-
-
-
 
 
 # now reflect them all to the other face: xface -> -xface
@@ -276,18 +265,15 @@ oside_uc=reflect_x(points_uc)
 oside_lc=reflect_x(points_lc)
 
 
-myset.add_coil(oside_ur)
 myset.add_coil(oside_ul)
-myset.add_coil(oside_ll)
-myset.add_coil(oside_lr)
-myset.add_coil(oside_c)
-myset.add_coil(oside_ml)
-myset.add_coil(oside_mr)
 myset.add_coil(oside_uc)
+myset.add_coil(oside_ur)
+myset.add_coil(oside_ml)
+myset.add_coil(oside_c)
+myset.add_coil(oside_mr)
+myset.add_coil(oside_ll)
 myset.add_coil(oside_lc)
-
-
-
+myset.add_coil(oside_lr)
 
 
 
@@ -311,7 +297,6 @@ y4=-yface
 point4=(x4,y4,z4)
 side_ur=(point1,point2,point3,point4)
 side_ur=np.array(side_ur)
-myset.add_coil(side_ur)
 
 # now reflect around
 point1=(-x1,y1,z1)
@@ -319,21 +304,18 @@ point2=(-x4,y4,z4)
 point3=(-x3,y3,z3)
 point4=(-x2,y2,z2)
 side_ul=np.array((point1,point2,point3,point4))
-myset.add_coil(side_ul)
 
 point1=(-x1,y1,-z1)
 point2=(-x2,y2,-z2)
 point3=(-x3,y3,-z3)
 point4=(-x4,y4,-z4)
 side_ll=np.array((point1,point2,point3,point4))
-myset.add_coil(side_ll)
 
 point1=(x1,y1,-z1)
 point2=(x4,y4,-z4)
 point3=(x3,y3,-z3)
 point4=(x2,y2,-z2)
 side_lr=np.array((point1,point2,point3,point4))
-myset.add_coil(side_lr)
 
 # central coil
 z1=(170+5)*.001
@@ -344,7 +326,6 @@ point2=(x1,y1,-z1)
 point3=(-x1,y1,-z1)
 point4=(-x1,y1,z1)
 side_c=np.array((point1,point2,point3,point4))
-myset.add_coil(side_c)
 
 # middle right coil
 x1=(221+5+40)*.001
@@ -358,7 +339,6 @@ point2=(x2,y2,z2)
 point3=(x2,y2,-z2)
 point4=(x1,y1,-z1)
 side_mr=np.array((point1,point2,point3,point4))
-myset.add_coil(side_mr)
 
 # reflect it to middle left coil
 point1=(-x1,y1,z1)
@@ -366,7 +346,6 @@ point2=(-x1,y1,-z1)
 point3=(-x2,y2,-z2)
 point4=(-x2,y2,z2)
 side_ml=np.array((point1,point2,point3,point4))
-myset.add_coil(side_ml)
 
 # middle top
 z1=600*.001
@@ -386,7 +365,6 @@ x4=x1
 y4=-yface
 point4=(x4,y4,z4)
 side_mt=np.array((point1,point2,point3,point4))
-myset.add_coil(side_mt)
 
 # mirror to middle bottom
 point1=(x1,y1,-z1)
@@ -394,7 +372,18 @@ point2=(x4,y4,-z4)
 point3=(x3,y3,-z3)
 point4=(x2,y2,-z2)
 side_mb=np.array((point1,point2,point3,point4))
+
+
+myset.add_coil(side_ur)
+myset.add_coil(side_mt)
+myset.add_coil(side_ul)
+myset.add_coil(side_mr)
+myset.add_coil(side_c)
+myset.add_coil(side_ml)
+myset.add_coil(side_lr)
 myset.add_coil(side_mb)
+myset.add_coil(side_ll)
+
 
 # now reflect them all to the other face: -yface -> yface
 def reflect_y(points):
@@ -413,15 +402,16 @@ oside_side_mr=reflect_y(side_mr)
 oside_side_mt=reflect_y(side_mt)
 oside_side_mb=reflect_y(side_mb)
 
-myset.add_coil(oside_side_ur)
+
 myset.add_coil(oside_side_ul)
-myset.add_coil(oside_side_lr)
-myset.add_coil(oside_side_ll)
-myset.add_coil(oside_side_c)
-myset.add_coil(oside_side_ml)
-myset.add_coil(oside_side_mr)
 myset.add_coil(oside_side_mt)
+myset.add_coil(oside_side_ur)
+myset.add_coil(oside_side_ml)
+myset.add_coil(oside_side_c)
+myset.add_coil(oside_side_mr)
+myset.add_coil(oside_side_ll)
 myset.add_coil(oside_side_mb)
+myset.add_coil(oside_side_lr)
 
 
 # Double phew, now on to the top side  (Floor and ceiling)
@@ -444,7 +434,6 @@ z4=zface
 point4=(x4,y4,z4)
 top_ur=(point1,point2,point3,point4)
 top_ur=np.array(top_ur)
-myset.add_coil(top_ur)
 
 # now reflect around
 point1=(-x1,y1,z1)
@@ -452,21 +441,18 @@ point2=(-x4,y4,z4)
 point3=(-x3,y3,z3)
 point4=(-x2,y2,z2)
 top_ul=np.array((point1,point2,point3,point4))
-myset.add_coil(top_ul)
 
 point1=(-x1,-y1,z1)
 point2=(-x2,-y2,z2)
 point3=(-x3,-y3,z3)
 point4=(-x4,-y4,z4)
 top_ll=np.array((point1,point2,point3,point4))
-myset.add_coil(top_ll)
 
 point1=(x1,-y1,z1)
 point2=(x4,-y4,z4)
 point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
 top_lr=np.array((point1,point2,point3,point4))
-myset.add_coil(top_lr)
 
 # central coil
 z1=zface
@@ -477,7 +463,6 @@ point2=(x1,-y1,z1)
 point3=(-x1,-y1,z1)
 point4=(-x1,y1,z1)
 top_c=np.array((point1,point2,point3,point4))
-myset.add_coil(top_c)
 
 # middle right coil
 x1=300*.001
@@ -491,7 +476,6 @@ point2=(x2,y2,z2)
 point3=(x2,-y2,z2)
 point4=(x1,-y1,z1)
 top_mr=np.array((point1,point2,point3,point4))
-myset.add_coil(top_mr)
 
 # reflect it to middle left coil
 point1=(-x1,y1,z1)
@@ -499,7 +483,6 @@ point2=(-x1,-y1,z1)
 point3=(-x2,-y2,z2)
 point4=(-x2,y2,z2)
 top_ml=np.array((point1,point2,point3,point4))
-myset.add_coil(top_ml)
 
 # middle top
 x1=(300-40)*.001
@@ -519,7 +502,6 @@ y4=y3
 z4=zface
 point4=(x4,y4,z4)
 top_mt=np.array((point1,point2,point3,point4))
-myset.add_coil(top_mt)
 
 # mirror to middle bottom
 point1=(x1,-y1,z1)
@@ -527,7 +509,19 @@ point2=(x4,-y4,z4)
 point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
 top_mb=np.array((point1,point2,point3,point4))
+
+
+myset.add_coil(top_ll)
 myset.add_coil(top_mb)
+myset.add_coil(top_lr)
+myset.add_coil(top_ml)
+myset.add_coil(top_c)
+myset.add_coil(top_mr)
+myset.add_coil(top_ul)
+myset.add_coil(top_mt)
+myset.add_coil(top_ur)
+
+
 
 # now reflect them all to the other face: zface -> -zface
 def reflect_z(points):
@@ -546,16 +540,20 @@ bott_mr=reflect_z(top_mr)
 bott_mt=reflect_z(top_mt)
 bott_mb=reflect_z(top_mb)
 
-myset.add_coil(bott_ur)
-myset.add_coil(bott_ul)
-myset.add_coil(bott_lr)
-myset.add_coil(bott_ll)
-myset.add_coil(bott_c)
-myset.add_coil(bott_ml)
-myset.add_coil(bott_mr)
-myset.add_coil(bott_mt)
-myset.add_coil(bott_mb)
 
+myset.add_coil(bott_ul)
+myset.add_coil(bott_mt)
+myset.add_coil(bott_ur)
+myset.add_coil(bott_ml)
+myset.add_coil(bott_c)
+myset.add_coil(bott_mr)
+myset.add_coil(bott_ll)
+myset.add_coil(bott_mb)
+myset.add_coil(bott_lr)
+
+
+
+'''
 #fix the winding direction of the coils.
 # flip coils that are in the wrong direction.
 
@@ -594,7 +592,7 @@ for i in range(9):
 print()
 print(len(coils))
 print(coils)
-
+'''
 
 ##################################################
 
@@ -693,96 +691,30 @@ if(options.traces):
 
 #drawing the coroplast and msr walls
 
-if(options.makeplots):
-    import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import numpy as np
+if(options.makeplots):   #drawing the coroplast and msr walls
+    # Draw wires
+    fig1 = plt.figure(figsize=(9.5,9.5))
+    ax4 = myset.draw_layout(fig1,title_add = " - OneWall",arrow=False,poslabel=False,drawL5=True,drawL6=True)
+    
+    #draw corroplast
+    DrawCoruplast(ax4[0],ax4[1],ax4[2])
+    
+    # initialize pipes
+    backpipesDraw = sparsepipelist()
+    wallpipesDraw = pipelist()
 
-# Function to add coil numbers to the plot
-def plot_coil_number(ax, x, y, z, number):
-    ax.text(x, y, z, str(number), fontsize=12, ha='center', va='center', color='black')
-
-# Function to plot the coil numbering logic
-def plot_coil_logics_and_walls(ax):
-    coil_spacing=1  # Arbitrary spacing between coils
-    # East wall (0 to 8)
-    for i in range(9):
-        # For East wall, set position at x=0, y varies from 0 to 8, z=0
-        plot_coil_number(ax, 0, i * coil_spacing, 0, i)
-    # West wall (9 to 17) - mirror of East wall
-    for i in range(9):
-        # For West wall, set position at x=10, y varies from 0 to 8, z=0
-        plot_coil_number(ax, 10, i * coil_spacing, 0, 9 + i)
-    # North wall (18 to 26)
-    for i in range(9):
-        # For North wall, set position at y=0, x varies from 0 to 8, z=0
-        plot_coil_number(ax, i * coil_spacing, 0, 0, 18 + i)
-    # South wall (27 to 35) - mirror of North wall
-    for i in range(9):
-        # For South wall, set position at y=10, x varies from 0 to 8, z=0
-        plot_coil_number(ax, i * coil_spacing, 10, 0, 27 + i)
-    # Floor (36 to 46)
-    for i in range(9):
-        # Floor coils are placed at z=-5 and vary along x and y
-        plot_coil_number(ax, i * coil_spacing, i * coil_spacing, -5, 36 + i)
-    # Ceiling (45 to 53) - updated range for 9 coils
-    for i in range(9):
-        # Ceiling coils are placed at z=5 and vary along x and y
-        plot_coil_number(ax, i * coil_spacing, i * coil_spacing, 5, 45 + i)
-
-# Function to plot walls with the coil numbering logic
-def plot_walls_with_coil_logic():
-    # Plot the existing layout
-    fig = plt.figure(figsize=(12, 12))
-    ax = fig.add_subplot(111, projection='3d')
-
-    plot_coil_logics_and_walls(ax)
-
-    # Labels and settings
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    ax.set_title('Coil Layout with Numbering')
-
-    # Set the limits and show the plot
-    ax.set_xlim([-1, 11])
-    ax.set_ylim([-1, 11])
-    ax.set_zlim([-6, 6])
-
-    # Show plot
+    QuickFeedThroughs(wallpipesDraw,backpipesDraw,color="grey") #plotting unrerouted holes in new color.
+    
+    # draw pipes
+    text=False
+    for piplist in [backpipesDraw,wallpipesDraw]:
+        piplist.draw_yz(ax4[1],text=text,div_rad=51)
+        piplist.draw_xy(ax4[2],text=text,div_rad=51)
+        piplist.draw_xz(ax4[0],text=text,div_rad=51)
+    plt.savefig("/Users/modestekatotoka/Desktop/tucan_2024/tucan/squares_with_pipes/msr_walls/msr_walls_figures.png",dpi=300,bbox_inches='tight')
     plt.show()
 
-# Run the function to display the plot
-plot_walls_with_coil_logic()
 
-# Draw wires (outside plot logic)
-fig1 = plt.figure(figsize=(9.5,9.5))
-
-# Make sure myset is defined and its draw_layout method is available
-ax4 = myset.draw_layout(fig1, title_add=" - OneWall", arrow=False, poslabel=False, drawL5=True, drawL6=True)
-
-# Draw coroplast (assuming the function exists)
-DrawCoruplast(ax4[0], ax4[1], ax4[2])
-
-# Initialize pipes (ensure these are defined)
-backpipesDraw = sparsepipelist()
-wallpipesDraw = pipelist()
-
-# Plot unrerouted holes in a new color
-QuickFeedThroughs(wallpipesDraw, backpipesDraw, color="grey")
-
-# Draw pipes
-text = False
-for piplist in [backpipesDraw, wallpipesDraw]:
-    piplist.draw_yz(ax4[1], text=text, div_rad=51)
-    piplist.draw_xy(ax4[2], text=text, div_rad=51)
-    piplist.draw_xz(ax4[0], text=text, div_rad=51)
-
-# Save the figure
-plt.savefig("/Users/modestekatotoka/Desktop/tucan_2024/tucan/modeste_squares/squares/msr_walls_figure/msr_walls_figures.png", dpi=300, bbox_inches='tight')
-
-# Show the final plot
-plt.show()
 
 from matplotlib import cm
 
