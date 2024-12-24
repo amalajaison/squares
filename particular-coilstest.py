@@ -20,6 +20,7 @@
 
 
 
+
 from scipy.constants import mu_0, pi
 import numpy as np
 from patchlib.patch import *
@@ -216,6 +217,8 @@ class sensorarray:
                         pos = corners[0]+x*i/(xdim-1)+y*j/(ydim-1)+z*k/(zdim-1)
                         self.sensors.append(sensor(pos))
         self.numsensors = len(self.sensors)
+        print('number of sensors is',self.numsensors)
+        #print('sensors_xyz', np.float64(self.sensors))
     def draw_sensor(self,number,ax):
         x = self.sensors[number].pos[0]
         y = self.sensors[number].pos[1]
@@ -230,6 +233,8 @@ class sensorarray:
         # makes a vector of magnetic fields in the same ordering as
         # the_matrix class below
         the_vector=np.zeros((self.numsensors*3))
+        #print('empty vector',the_vector)
+        #print('vector B',the_vector)
         for j in range(myarray.numsensors):
             r = myarray.sensors[j].pos
             b=np.array([bxtarget(r[0],r[1],r[2]),
@@ -278,6 +283,7 @@ if(options.traces):
 
 
 from matplotlib import cm
+print('the matrix...')
 
 class the_matrix:
     def __init__(self,myset,myarray):
@@ -285,10 +291,12 @@ class the_matrix:
         #self.fill(myset,myarray)
         self.fillspeed(myset,myarray)
         self.condition = np.linalg.cond(self.m)
+        print('m is',self.m)
 
         # for some reason I chose to create the transpose of the usual
         # convention, when I first wrote the fill method
         self.capital_M=self.m.T # M=s*c=sensors*coils Matrix
+        print('capital_M is ',self.capital_M)
 
         # Do the svd
         self.U,self.s,self.VT=np.linalg.svd(self.capital_M)
@@ -311,6 +319,7 @@ class the_matrix:
         self.Minv=self.VT.T.dot(self.D.T).dot(self.U.T)
         #self.Minv=np.linalg.pinv(self.capital_M)
         
+        
         # now gets to fixin'
         # remove just the last mode
         n_elements=myset.numcoils-1
@@ -318,6 +327,7 @@ class the_matrix:
         self.Dp=self.D[:,:n_elements]
         self.VTp=self.VT[:n_elements,:]
         self.Minvp=self.VTp.T.dot(self.Dp.T).dot(self.U.T)
+      
         
     def fill(self,myset,myarray):
         for i in range(myset.numcoils):
@@ -340,7 +350,7 @@ class the_matrix:
                 for k in range(3):
                     self.m[i,j*3+k]=b[k]
         myset.zero_currents()
-            
+        
     def check_field_graphically(self,myset,myarray):
         # test each coil by graphing field at each sensor
         for i in range(myset.numcoils):
@@ -1012,17 +1022,17 @@ if(options.residuals):
         plt.axvline(x=-a/2,color='black',linestyle='--')
         plt.axvline(x=a_sensors/2,color='red',linestyle='--')
         plt.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
+'''
 #saving figures
 
 fig7.savefig("/home/jmartin/Desktop/delete_later/Bx_along_x-axis_l0_m1.png",dpi=300,bbox_inches='tight') #delete later
 fig8.savefig("/home/jmartin/Desktop/delete_later/By_along_x-axis_l0_m1.png",dpi=300,bbox_inches='tight') #delete later
 fig9.savefig("/home/jmartin/Desktop/delete_later/Bz_along_x-axis-l0_m1.png",dpi=300,bbox_inches='tight') #delete later
-
+'''
 
 plt.show()
 
-print(vec_i)
+print('vec_i is:',vec_i)
 max_unnormalized_current=np.max(np.abs(vec_i)) # arb. units
 max_normalized_current=0.04 # Amperes
 calibration_factor=max_normalized_current/max_unnormalized_current
@@ -1196,7 +1206,7 @@ if(options.axes and options.wiggle):
     fig7,(ax71)=plt.subplots(nrows=1)
     fig8,(ax81)=plt.subplots(nrows=1)
     fig9,(ax91)=plt.subplots(nrows=1)
-    
+    #xscan plot
     ax71.plot(points1d[mask],bz1d_xscan[mask],label='$B_z(x,0,0)$')
     ax71.plot(points1d[mask],bz1d_target_xscan[mask],label='target $B_z(x,0,0)$')
     ax71.plot(points1d[mask],bz1d_yscan[mask],label='$B_z(0,y,0)$')
@@ -1214,7 +1224,7 @@ if(options.axes and options.wiggle):
         ax71.axvline(x=-a/2,color='black',linestyle='--')
         ax71.axvline(x=a_sensors/2,color='red',linestyle='--')
         ax71.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
+    #yscan plot
     ax81.plot(points1d[mask],by1d_xscan[mask],label='$B_y(x,0,0)$')
     ax81.plot(points1d[mask],by1d_target_xscan[mask],label='target $B_y(x,0,0)$')
     ax81.plot(points1d[mask],by1d_yscan[mask],label='$B_y(0,y,0)$')
@@ -1232,7 +1242,7 @@ if(options.axes and options.wiggle):
         ax81.axvline(x=a_sensors/2,color='red',linestyle='--')
         ax81.axvline(x=-a_sensors/2,color='red',linestyle='--')
 
-
+    #zscan plot
     ax91.plot(points1d[mask],bx1d_xscan[mask],label='$B_x(x,0,0)$')
     ax91.plot(points1d[mask],bx1d_target_xscan[mask],label='target $B_x(x,0,0)$')
     ax91.plot(points1d[mask],bx1d_yscan[mask],label='$B_x(0,y,0)$')

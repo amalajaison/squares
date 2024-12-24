@@ -15,6 +15,7 @@
 #Fri July 19 2024, Modeste added the opting to draw the msr and coroplast set up at line 1056 run with options -p.
 
 
+
 from scipy.constants import mu_0, pi
 import numpy as np
 from patchlib.patch import *
@@ -22,6 +23,9 @@ from Pis.Pislib import *
 from dipole import *
 
 from pipesfitting import *
+
+#from arduino_current_controller_routines import *
+
 
 from optparse import OptionParser
 
@@ -66,10 +70,13 @@ parser.add_option("-i", "--incells", dest="incells", default=False,
 parser.add_option("-p", "--makeplots", dest="makeplots", default=False,
                   action="store_true",
                   help="Make plots of walls")
+parser.add_option("-w", "--wiggle", dest="wiggle",
+                  action="store_true",
+                  default=False, help="wiggle each point")
 
 #d=dipole(1.2,0,0,0,0,100000)  # dipole1
-d=dipole(0,0,1.2,0,0,1)  # dipole2
-#d=dipole(0,0,1.2,1,0,0)  # dipole3
+#d=dipole(0,0,1.2,0,0,1)  # dipole2
+d=dipole(0,0,1.2,1,0,0)  # dipole3
 
 (options,args)=parser.parse_args()
 
@@ -124,7 +131,6 @@ x4=xface
 point4=(x4,y4,z4)
 points_ur=(point1,point2,point3,point4)
 points_ur=np.array(points_ur)
-myset.add_coil(points_ur)
 
 # Now add mirror images of these
 point1=(x1,-y1,z1)
@@ -133,7 +139,6 @@ point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
 points_ul=(point1,point2,point3,point4)
 points_ul=np.array(points_ul)
-myset.add_coil(points_ul)
 
 point1=(x1,-y1,-z1)
 point2=(x2,-y2,-z2)
@@ -141,7 +146,6 @@ point3=(x3,-y3,-z3)
 point4=(x4,-y4,-z4)
 points_ll=(point1,point2,point3,point4)
 points_ll=np.array(points_ll)
-myset.add_coil(points_ll)
 
 point1=(x1,y1,-z1)
 point2=(x4,y4,-z4)
@@ -149,7 +153,6 @@ point3=(x3,y3,-z3)
 point4=(x2,y2,-z2)
 points_lr=(point1,point2,point3,point4)
 points_lr=np.array(points_lr)
-myset.add_coil(points_lr)
 
 # now the central coil
 x1=xface
@@ -161,7 +164,6 @@ point3=(x1,-y1,-z1)
 point4=(x1,-y1,z1)
 points_c=(point1,point2,point3,point4)
 points_c=np.array(points_c)
-myset.add_coil(points_c)
 
 # now the right side coil
 x1=xface
@@ -183,7 +185,6 @@ point4=(x4,y4,z4)
 points_mr=(point1,point2,point3,point4)
 print('points_mr',points_mr)
 points_mr=np.array(points_mr)
-myset.add_coil(points_mr)
 
 # now the left side coil -- reflect and wind in same direction
 point1=(x1,-y1,z1)
@@ -192,7 +193,6 @@ point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
 points_ml=(point1,point2,point3,point4)
 points_ml=np.array(points_ml)
-myset.add_coil(points_ml)
 
 # now the upper central coil
 x1=xface
@@ -214,7 +214,6 @@ point4=(x4,y4,z4)
 points_uc=(point1,point2,point3,point4)
 print('points_uc',points_uc)
 points_uc=np.array(points_uc)
-myset.add_coil(points_uc)
 
 # now the lower central coil -- reflect and wind in same direction
 point1=(x1,y1,-z1)
@@ -223,7 +222,30 @@ point3=(x3,y3,-z3)
 point4=(x2,y2,-z2)
 points_lc=(point1,point2,point3,point4)
 points_lc=np.array(points_lc)
+
+ 
+'''
+myset.add_coil(points_ur)
+myset.add_coil(points_ul)
+myset.add_coil(points_ll)
+myset.add_coil(points_lr)
+myset.add_coil(points_c)
+myset.add_coil(points_mr)
+myset.add_coil(points_ml)
+myset.add_coil(points_uc)
 myset.add_coil(points_lc)
+'''
+
+myset.add_coil(points_ur)
+myset.add_coil(points_uc)
+myset.add_coil(points_ul)
+myset.add_coil(points_mr)
+myset.add_coil(points_c)
+myset.add_coil(points_ml)
+myset.add_coil(points_lr)
+myset.add_coil(points_lc)
+myset.add_coil(points_ll)
+
 
 # now reflect them all to the other face: xface -> -xface
 def reflect_x(points):
@@ -233,25 +255,29 @@ def reflect_x(points):
     return newpoints
     
 oside_ur=reflect_x(points_ur)
-myset.add_coil(oside_ur)
 oside_ul=reflect_x(points_ul)
-myset.add_coil(oside_ul)
 oside_ll=reflect_x(points_ll)
-myset.add_coil(oside_ll)
 oside_lr=reflect_x(points_lr)
-myset.add_coil(oside_lr)
 oside_c=reflect_x(points_c)
-myset.add_coil(oside_c)
 oside_ml=reflect_x(points_ml)
-myset.add_coil(oside_ml)
 oside_mr=reflect_x(points_mr)
-myset.add_coil(oside_mr)
 oside_uc=reflect_x(points_uc)
-myset.add_coil(oside_uc)
 oside_lc=reflect_x(points_lc)
-myset.add_coil(oside_lc)
 
-# Phew -- now onto the sides  (North/southwalls)
+
+myset.add_coil(oside_ul)
+myset.add_coil(oside_uc)
+myset.add_coil(oside_ur)
+myset.add_coil(oside_ml)
+myset.add_coil(oside_c)
+myset.add_coil(oside_mr)
+myset.add_coil(oside_ll)
+myset.add_coil(oside_lc)
+myset.add_coil(oside_lr)
+
+
+
+# Phew -- now onto the sides  (North/south walls)
     
 z1=(260-5-40)*.001
 x1=(220-5)*.001
@@ -271,7 +297,6 @@ y4=-yface
 point4=(x4,y4,z4)
 side_ur=(point1,point2,point3,point4)
 side_ur=np.array(side_ur)
-myset.add_coil(side_ur)
 
 # now reflect around
 point1=(-x1,y1,z1)
@@ -279,21 +304,18 @@ point2=(-x4,y4,z4)
 point3=(-x3,y3,z3)
 point4=(-x2,y2,z2)
 side_ul=np.array((point1,point2,point3,point4))
-myset.add_coil(side_ul)
 
 point1=(-x1,y1,-z1)
 point2=(-x2,y2,-z2)
 point3=(-x3,y3,-z3)
 point4=(-x4,y4,-z4)
 side_ll=np.array((point1,point2,point3,point4))
-myset.add_coil(side_ll)
 
 point1=(x1,y1,-z1)
 point2=(x4,y4,-z4)
 point3=(x3,y3,-z3)
 point4=(x2,y2,-z2)
 side_lr=np.array((point1,point2,point3,point4))
-myset.add_coil(side_lr)
 
 # central coil
 z1=(170+5)*.001
@@ -304,7 +326,6 @@ point2=(x1,y1,-z1)
 point3=(-x1,y1,-z1)
 point4=(-x1,y1,z1)
 side_c=np.array((point1,point2,point3,point4))
-myset.add_coil(side_c)
 
 # middle right coil
 x1=(221+5+40)*.001
@@ -318,7 +339,6 @@ point2=(x2,y2,z2)
 point3=(x2,y2,-z2)
 point4=(x1,y1,-z1)
 side_mr=np.array((point1,point2,point3,point4))
-myset.add_coil(side_mr)
 
 # reflect it to middle left coil
 point1=(-x1,y1,z1)
@@ -326,7 +346,6 @@ point2=(-x1,y1,-z1)
 point3=(-x2,y2,-z2)
 point4=(-x2,y2,z2)
 side_ml=np.array((point1,point2,point3,point4))
-myset.add_coil(side_ml)
 
 # middle top
 z1=600*.001
@@ -346,7 +365,6 @@ x4=x1
 y4=-yface
 point4=(x4,y4,z4)
 side_mt=np.array((point1,point2,point3,point4))
-myset.add_coil(side_mt)
 
 # mirror to middle bottom
 point1=(x1,y1,-z1)
@@ -354,7 +372,18 @@ point2=(x4,y4,-z4)
 point3=(x3,y3,-z3)
 point4=(x2,y2,-z2)
 side_mb=np.array((point1,point2,point3,point4))
+
+
+myset.add_coil(side_ur)
+myset.add_coil(side_mt)
+myset.add_coil(side_ul)
+myset.add_coil(side_mr)
+myset.add_coil(side_c)
+myset.add_coil(side_ml)
+myset.add_coil(side_lr)
 myset.add_coil(side_mb)
+myset.add_coil(side_ll)
+
 
 # now reflect them all to the other face: -yface -> yface
 def reflect_y(points):
@@ -373,15 +402,16 @@ oside_side_mr=reflect_y(side_mr)
 oside_side_mt=reflect_y(side_mt)
 oside_side_mb=reflect_y(side_mb)
 
-myset.add_coil(oside_side_ur)
+
 myset.add_coil(oside_side_ul)
-myset.add_coil(oside_side_lr)
-myset.add_coil(oside_side_ll)
-myset.add_coil(oside_side_c)
-myset.add_coil(oside_side_ml)
-myset.add_coil(oside_side_mr)
 myset.add_coil(oside_side_mt)
+myset.add_coil(oside_side_ur)
+myset.add_coil(oside_side_ml)
+myset.add_coil(oside_side_c)
+myset.add_coil(oside_side_mr)
+myset.add_coil(oside_side_ll)
 myset.add_coil(oside_side_mb)
+myset.add_coil(oside_side_lr)
 
 
 # Double phew, now on to the top side  (Floor and ceiling)
@@ -404,7 +434,6 @@ z4=zface
 point4=(x4,y4,z4)
 top_ur=(point1,point2,point3,point4)
 top_ur=np.array(top_ur)
-myset.add_coil(top_ur)
 
 # now reflect around
 point1=(-x1,y1,z1)
@@ -412,21 +441,18 @@ point2=(-x4,y4,z4)
 point3=(-x3,y3,z3)
 point4=(-x2,y2,z2)
 top_ul=np.array((point1,point2,point3,point4))
-myset.add_coil(top_ul)
 
 point1=(-x1,-y1,z1)
 point2=(-x2,-y2,z2)
 point3=(-x3,-y3,z3)
 point4=(-x4,-y4,z4)
 top_ll=np.array((point1,point2,point3,point4))
-myset.add_coil(top_ll)
 
 point1=(x1,-y1,z1)
 point2=(x4,-y4,z4)
 point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
 top_lr=np.array((point1,point2,point3,point4))
-myset.add_coil(top_lr)
 
 # central coil
 z1=zface
@@ -437,7 +463,6 @@ point2=(x1,-y1,z1)
 point3=(-x1,-y1,z1)
 point4=(-x1,y1,z1)
 top_c=np.array((point1,point2,point3,point4))
-myset.add_coil(top_c)
 
 # middle right coil
 x1=300*.001
@@ -451,7 +476,6 @@ point2=(x2,y2,z2)
 point3=(x2,-y2,z2)
 point4=(x1,-y1,z1)
 top_mr=np.array((point1,point2,point3,point4))
-myset.add_coil(top_mr)
 
 # reflect it to middle left coil
 point1=(-x1,y1,z1)
@@ -459,7 +483,6 @@ point2=(-x1,-y1,z1)
 point3=(-x2,-y2,z2)
 point4=(-x2,y2,z2)
 top_ml=np.array((point1,point2,point3,point4))
-myset.add_coil(top_ml)
 
 # middle top
 x1=(300-40)*.001
@@ -479,7 +502,6 @@ y4=y3
 z4=zface
 point4=(x4,y4,z4)
 top_mt=np.array((point1,point2,point3,point4))
-myset.add_coil(top_mt)
 
 # mirror to middle bottom
 point1=(x1,-y1,z1)
@@ -487,7 +509,19 @@ point2=(x4,-y4,z4)
 point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
 top_mb=np.array((point1,point2,point3,point4))
+
+
+myset.add_coil(top_ll)
 myset.add_coil(top_mb)
+myset.add_coil(top_lr)
+myset.add_coil(top_ml)
+myset.add_coil(top_c)
+myset.add_coil(top_mr)
+myset.add_coil(top_ul)
+myset.add_coil(top_mt)
+myset.add_coil(top_ur)
+
+
 
 # now reflect them all to the other face: zface -> -zface
 def reflect_z(points):
@@ -506,15 +540,61 @@ bott_mr=reflect_z(top_mr)
 bott_mt=reflect_z(top_mt)
 bott_mb=reflect_z(top_mb)
 
-myset.add_coil(bott_ur)
+
 myset.add_coil(bott_ul)
-myset.add_coil(bott_lr)
-myset.add_coil(bott_ll)
-myset.add_coil(bott_c)
-myset.add_coil(bott_ml)
-myset.add_coil(bott_mr)
 myset.add_coil(bott_mt)
+myset.add_coil(bott_ur)
+myset.add_coil(bott_ml)
+myset.add_coil(bott_c)
+myset.add_coil(bott_mr)
+myset.add_coil(bott_ll)
 myset.add_coil(bott_mb)
+myset.add_coil(bott_lr)
+
+
+
+'''
+#fix the winding direction of the coils.
+# flip coils that are in the wrong direction.
+
+myset.coil[22].flip_this_coil()
+#myset.coil[25].flip_this_coil()
+
+#re-ordering the coils
+#myset.swap_coils(0,7)
+
+
+# Coil numbering logic
+coils = {}
+# East wall (0 to 8)
+for i in range(9):
+    coils[f'East_{i}']=(i, 'East')
+
+# West wall (9 to 17) - mirror of East wall
+for i in range(9):
+    coils[f'West_{i}']=(9 + i, 'West')
+
+# North wall (18 to 26)
+for i in range(9):
+    coils[f'North_{i}']=(18 + i, 'North')
+
+# South wall (27 to 35) - mirror of North wall
+for i in range(9):
+    coils[f'South_{i}']=(27 + i, 'South')
+
+# Floor (36 to 46)
+for i in range(9):
+    coils[f'Floor_{i}']=(36 + i, 'Floor')
+
+# Ceiling (45 to 53)
+for i in range(9):
+    coils[f'Ceiling_{i}']=(45 + i, 'Ceiling')
+print()
+print(len(coils))
+print(coils)
+'''
+
+##################################################
 
 class sensor:
     def __init__(self,pos):
@@ -606,6 +686,10 @@ if(options.traces):
     ax.set_ylabel('y (m)')
     ax.set_zlabel('z (m)')
     plt.show()
+    
+#####################################################################
+
+#drawing the coroplast and msr walls
 
 if(options.makeplots):   #drawing the coroplast and msr walls
     # Draw wires
@@ -627,8 +711,10 @@ if(options.makeplots):   #drawing the coroplast and msr walls
         piplist.draw_yz(ax4[1],text=text,div_rad=51)
         piplist.draw_xy(ax4[2],text=text,div_rad=51)
         piplist.draw_xz(ax4[0],text=text,div_rad=51)
-    plt.savefig("/Users/modestekatotoka/Desktop/tucan_2024/tucan/modeste_squares/squares/msr_walls_figure/msr_walls_figures.png",dpi=300,bbox_inches='tight')
-    plt.show() #saving directory for the msr figure
+    plt.savefig("/Users/modestekatotoka/Desktop/tucan_2024/tucan/squares_with_pipes/msr_walls/msr_walls_figures.png",dpi=300,bbox_inches='tight')
+    plt.show()
+
+
 
 from matplotlib import cm
 
@@ -758,10 +844,8 @@ if(options.matrices):
 
 # Set up vector of desired fields
 
-#print(len(myarray.vec_b()),myarray.vec_b())
-#vec_i=mymatrix.Minvp.dot(myarray.vec_b())
 vec_i=mymatrix.Minv.dot(myarray.vec_b())
-#print(vec_i)
+
 
 # Assign currents to coilcube
 
@@ -918,184 +1002,71 @@ if(options.residuals):
 
 plt.show()
 
-# studies over an ROI
+print('vec_i is:',vec_i)
 
-#x,y,z=np.mgrid[-.25:.25:51j,-.25:.25:51j,-.25:.25:51j]
-#x,y,z=np.mgrid[-.49:.49:99j,-.49:.49:99j,-.49:.49:99j]
-x,y,z=np.mgrid[-.5:.5:101j,-.5:.5:101j,-.5:.5:101j]
+#generating a current_onesheet.csv file
 
-if(options.incells):
-    rcell=0.3 # m, cell radius
-    hcell=0.1601 # m, cell height
-    dcell=0.08 # m, bottom to top distance of cells
-    mask=(abs(z)>=dcell/2)&(abs(z)<=dcell/2+hcell)&(x**2+y**2<rcell**2)
-    mask_upper=(abs(z)>=dcell/2)&(abs(z)<=dcell/2+hcell)&(x**2+y**2<rcell**2)&(z>0)
-    mask_lower=(abs(z)>=dcell/2)&(abs(z)<=dcell/2+hcell)&(x**2+y**2<rcell**2)&(z<0)
-else:
-    mask=np.full(np.shape(z),True)
-    mask_upper=(z>0)
-    mask_lower=(z<0)
+max_unnormalized_current=np.max(np.abs(vec_i)) # arb. units
+max_normalized_current=0.04 # Amperes
+calibration_factor=max_normalized_current/max_unnormalized_current
+calibrated_vec_i=vec_i*calibration_factor # Amperes
 
-# This is used to test the cell dimensions.
+channel_number =np.arange(50)
+my_calibrated_array_i=calibrated_vec_i.reshape(-1,1) # Amperes
+print('my calibrated currents array',my_calibrated_array_i)
+print('my calibrated currents array',size(my_calibrated_array_i))
 
-#fig=plt.figure()
-#ax=fig.add_subplot(111,projection='3d')
-#scat=ax.scatter(x[mask_upper],y[mask_upper],z[mask_upper])
-#plt.show()
+import csv
 
-bx_roi,by_roi,bz_roi=myset.b_prime(x,y,z)
-bx_target=bxtarget(x,y,z)
-by_target=bytarget(x,y,z)
-bz_target=bztarget(x,y,z)
-bx_residual=bx_roi-bx_target
-by_residual=by_roi-by_target
-bz_residual=bz_roi-bz_target
+with open('current_oneshet.csv','w', newline='') as csvfile:
+        fields=['channel_number','calibrated_vec_i']
+        writer=csv.DictWriter(csvfile, delimiter=',', lineterminator='\n',fieldnames=fields)
+        writer.writeheader()
+        data=(channel_number,my_calibrated_array_i)
+        for cn,ci in zip(channel_number, my_calibrated_array_i):
+            writer.writerow({'channel_number':cn, 'calibrated_vec_i':ci[0]})
 
-print(np.shape(bx_roi))
+# Now let's check what the field should be after setting these currents
 
-print('Statistics on the ROI')
-print
+myset.set_currents(calibrated_vec_i)
+
+# the field at the centre of the coilcube
+r=np.array([0,0,0])
+print('Check field at centre of the coilcube')
+print(myset.b(r))
+print(myset.b_prime(0,0,0))
 
 
-
-bz_ave=np.average(bz_target)
-print('The unmasked average Bz prior to correction is %e'%bz_ave)
-bz_max=np.amax(bz_target)
-bz_min=np.amin(bz_target)
-bz_delta=bz_max-bz_min
-print('The unmasked max/min/diff Bz are %e %e %e'%(bz_max,bz_min,bz_delta))
-print('We normalize this to 3 nT max-min')
-print
-
-print('Both cells')
-bz_mask_max=np.amax(bz_target[mask])
-bz_mask_min=np.amin(bz_target[mask])
-bz_mask_delta=bz_mask_max-bz_mask_min
-print('The max/min/diff Bz masks are %e %e %e'%(bz_mask_max,bz_mask_min,bz_mask_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_mask_delta/bz_delta*3))
-bz_std=np.std(bz_target[mask])
-print('The masked standard deviation of Bz is %e'%bz_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_std/bz_delta*3))
-print
-
-bz_residual_max=np.amax(bz_residual[mask])
-bz_residual_min=np.amin(bz_residual[mask])
-bz_residual_delta=bz_residual_max-bz_residual_min
-print('The max/min/diff Bz residuals are %e %e %e'%(bz_residual_max,bz_residual_min,bz_residual_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_residual_delta/bz_delta*3))
-bz_residual_std=np.std(bz_residual[mask])
-print('The standard deviation of Bz residuals is %e'%bz_residual_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_residual_std/bz_delta*3))
-print
-
-print('Upper cell')
-bz_mask_max=np.amax(bz_target[mask_upper])
-bz_mask_min=np.amin(bz_target[mask_upper])
-bz_mask_delta=bz_mask_max-bz_mask_min
-print('The max/min/diff Bz masks are %e %e %e'%(bz_mask_max,bz_mask_min,bz_mask_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_mask_delta/bz_delta*3))
-bz_std=np.std(bz_target[mask_upper])
-print('The masked standard deviation of Bz is %e'%bz_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_std/bz_delta*3))
-print
-
-bz_residual_max=np.amax(bz_residual[mask_upper])
-bz_residual_min=np.amin(bz_residual[mask_upper])
-bz_residual_delta=bz_residual_max-bz_residual_min
-print('The max/min/diff Bz residuals are %e %e %e'%(bz_residual_max,bz_residual_min,bz_residual_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_residual_delta/bz_delta*3))
-bz_residual_std=np.std(bz_residual[mask_upper])
-print('The standard deviation of Bz residuals is %e'%bz_residual_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_residual_std/bz_delta*3))
-print
-
-print('Lower cell')
-bz_mask_max=np.amax(bz_target[mask_lower])
-bz_mask_min=np.amin(bz_target[mask_lower])
-bz_mask_delta=bz_mask_max-bz_mask_min
-print('The max/min/diff Bz masks are %e %e %e'%(bz_mask_max,bz_mask_min,bz_mask_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_mask_delta/bz_delta*3))
-bz_std=np.std(bz_target[mask_lower])
-print('The masked standard deviation of Bz is %e'%bz_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_std/bz_delta*3))
-print
-
-bz_residual_max=np.amax(bz_residual[mask_lower])
-bz_residual_min=np.amin(bz_residual[mask_lower])
-bz_residual_delta=bz_residual_max-bz_residual_min
-print('The max/min/diff Bz residuals are %e %e %e'%(bz_residual_max,bz_residual_min,bz_residual_delta))
-print('Normalizing to 3 nT gives a delta of %f nT'%(bz_residual_delta/bz_delta*3))
-bz_residual_std=np.std(bz_residual[mask_lower])
-print('The standard deviation of Bz residuals is %e'%bz_residual_std)
-print('Normalizing to 3 nT gives a standard deviation of %f nT'%(bz_residual_std/bz_delta*3))
-print
-
-
-bt2_target=bx_target**2+by_target**2+bz_target**2
-bt2_ave=np.average(bt2_target[mask])
-print('The BT2 prior to correction is %e'%bt2_ave)
-bt2_ave_norm=bt2_ave*3**2/bz_delta**2
-print('Normalized is %f nT^2'%(bt2_ave_norm))
-
-bt2_residual=bx_residual**2+by_residual**2+bz_residual**2
-bt2_residual_ave=np.average(bt2_residual[mask])
-print('The BT2 after correction is %e'%bt2_residual_ave)
-bt2_residual_ave_norm=bt2_residual_ave*3**2/bz_delta**2
-print('Normalized is %f nT^2'%(bt2_residual_ave_norm))
-print
-
-print('The normalized currents are:')
-vec_i=vec_i*3e-9/bz_delta
-print(vec_i)
-print('The maximum current is %f A'%np.amax(vec_i))
-print('The minimum current is %f A'%np.amin(vec_i))
-
-n=14 # number of bits
-#Igoal=round(np.amax(vec_i)*1000)
-Imin=-0.025 # minimum current (A)
-Imax=0.025 # maximum current (A)
-deltaI=Imax-Imin # full range of current, which I'll distribute my bits across.
-
-print("Distributing %d bits across %f A"%(n,deltaI))
-
-def bits(I):
-    return np.rint((I-Imin)/deltaI*(2**n-1))
-
-def true_current(b):
-    return deltaI/(2**n-1)*b+Imin
-
-print('The bits are',bits(vec_i))
-
-dig_i=true_current(bits(vec_i))
-
-print('The digitized currents are',dig_i)
-
-dig_i_reunnormalized=dig_i/3e-9*bz_delta
-
-#trying to plot normalized and digitized currents vs number coils? 
-
-#cn=list(range(0,50)) #number of coils
-#plt.plot(cn,vec_i,label='normalized currents')
-#plt.plot(cn,true_current(bits(vec_i)),label='digitized currents')
-#plt.show()
-
-myset.set_currents(dig_i_reunnormalized)
-
-points1d=np.mgrid[-1:1:101j]
+# scans along each axis
+points1d=np.mgrid[-a:a:101j]
 bx1d_xscan,by1d_xscan,bz1d_xscan=myset.b_prime(points1d,0.,0.)
 bx1d_yscan,by1d_yscan,bz1d_yscan=myset.b_prime(0.,points1d,0.)
 bx1d_zscan,by1d_zscan,bz1d_zscan=myset.b_prime(0.,0.,points1d)
 
+# target field
+bx1d_target_xscan=bxtarget(points1d,0.,0.)*np.ones(np.shape(points1d))*calibration_factor
+bx1d_target_yscan=bxtarget(0.,points1d,0.)*np.ones(np.shape(points1d))*calibration_factor
+bx1d_target_zscan=bxtarget(0.,0.,points1d)*np.ones(np.shape(points1d))*calibration_factor
+
+by1d_target_xscan=bytarget(points1d,0.,0.)*np.ones(np.shape(points1d))*calibration_factor
+by1d_target_yscan=bytarget(0.,points1d,0.)*np.ones(np.shape(points1d))*calibration_factor
+by1d_target_zscan=bytarget(0.,0.,points1d)*np.ones(np.shape(points1d))*calibration_factor
+
+bz1d_target_xscan=bztarget(points1d,0.,0.)*np.ones(np.shape(points1d))*calibration_factor
+bz1d_target_yscan=bztarget(0.,points1d,0.)*np.ones(np.shape(points1d))*calibration_factor
+bz1d_target_zscan=bztarget(0.,0.,points1d)*np.ones(np.shape(points1d))*calibration_factor
+
+    
 if(options.zoom):
     mask=(points1d>=-a_sensors/2)&(points1d<=a_sensors/2)
 else:
     mask=np.full(np.shape(points1d),True)
 
-if(options.axes):
+if(options.axes and not options.wiggle):
     fig7,(ax71)=plt.subplots(nrows=1)
     fig8,(ax81)=plt.subplots(nrows=1)
     fig9,(ax91)=plt.subplots(nrows=1)
-    
+    #xscan plots
     ax71.plot(points1d[mask],bz1d_xscan[mask],label='$B_z(x,0,0)$')
     ax71.plot(points1d[mask],bz1d_target_xscan[mask],label='target $B_z(x,0,0)$')
     ax71.plot(points1d[mask],bz1d_yscan[mask],label='$B_z(0,y,0)$')
@@ -1113,7 +1084,7 @@ if(options.axes):
         ax71.axvline(x=-a/2,color='black',linestyle='--')
         ax71.axvline(x=a_sensors/2,color='red',linestyle='--')
         ax71.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
+    #yscan plots
     ax81.plot(points1d[mask],by1d_xscan[mask],label='$B_y(x,0,0)$')
     ax81.plot(points1d[mask],by1d_target_xscan[mask],label='target $B_y(x,0,0)$')
     ax81.plot(points1d[mask],by1d_yscan[mask],label='$B_y(0,y,0)$')
@@ -1130,7 +1101,7 @@ if(options.axes):
         ax81.axvline(x=-a/2,color='black',linestyle='--')
         ax81.axvline(x=a_sensors/2,color='red',linestyle='--')
         ax81.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
+    #zscan plots
     ax91.plot(points1d[mask],bx1d_xscan[mask],label='$B_x(x,0,0)$')
     ax91.plot(points1d[mask],bx1d_target_xscan[mask],label='target $B_x(x,0,0)$')
     ax91.plot(points1d[mask],bx1d_yscan[mask],label='$B_x(0,y,0)$')
@@ -1156,46 +1127,75 @@ if(options.axes):
     ax81.legend()
     ax91.legend()
 
+    np.savetxt('xscan_onesheet.out',np.transpose((points1d[mask],bx1d_xscan[mask],by1d_xscan[mask],bz1d_xscan[mask])))
+    np.savetxt('xscan_onesheet_target.out',np.transpose((points1d[mask],bx1d_target_xscan[mask],by1d_target_xscan[mask],bz1d_target_xscan[mask])))
 
-if(options.residuals):
+    np.savetxt('yscan_onesheet.out',np.transpose((points1d[mask],bx1d_yscan[mask],by1d_yscan[mask],bz1d_yscan[mask])))
+    np.savetxt('yscan_onesheet_target.out',np.transpose((points1d[mask],bx1d_target_yscan[mask],by1d_target_yscan[mask],bz1d_target_yscan[mask])))
 
-    ax101=plt.figure(101)
-    plt.plot(points1d[mask],bz1d_xscan[mask]-bz1d_target_xscan[mask],label='residual $B_z(x,0,0)$')
-    plt.plot(points1d[mask],bz1d_yscan[mask]-bz1d_target_yscan[mask],label='residual $B_z(0,y,0)$')
-    plt.plot(points1d[mask],bz1d_zscan[mask]-bz1d_target_zscan[mask],label='residual $B_z(0,0,z)$')
-    plt.xlabel('x, y, or z (m)')
-    plt.ylabel('residual $B_z$ (true-target)')
-    plt.legend()
-    if(not options.zoom):
-        plt.axvline(x=a/2,color='black',linestyle='--')
-        plt.axvline(x=-a/2,color='black',linestyle='--')
-        plt.axvline(x=a_sensors/2,color='red',linestyle='--')
-        plt.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
-    ax102=plt.figure(102)
-    plt.plot(points1d[mask],by1d_xscan[mask]-by1d_target_xscan[mask],label='residual $B_y(x,0,0)$')
-    plt.plot(points1d[mask],by1d_yscan[mask]-by1d_target_yscan[mask],label='residual $B_y(0,y,0)$')
-    plt.plot(points1d[mask],by1d_zscan[mask]-by1d_target_zscan[mask],label='residual $B_y(0,0,z)$')
-    plt.xlabel('x, y, or z (m)')
-    plt.ylabel('residual $B_y$ (true-target)')
-    plt.legend()
-    if(not options.zoom):
-        plt.axvline(x=a/2,color='black',linestyle='--')
-        plt.axvline(x=-a/2,color='black',linestyle='--')
-        plt.axvline(x=a_sensors/2,color='red',linestyle='--')
-        plt.axvline(x=-a_sensors/2,color='red',linestyle='--')
-
-    ax103=plt.figure(103)
-    plt.plot(points1d[mask],bx1d_xscan[mask]-bx1d_target_xscan[mask],label='residual $B_x(x,0,0)$')
-    plt.plot(points1d[mask],bx1d_yscan[mask]-bx1d_target_yscan[mask],label='residual $B_x(0,y,0)$')
-    plt.plot(points1d[mask],bx1d_zscan[mask]-bx1d_target_zscan[mask],label='residual $B_x(0,0,z)$')
-    plt.xlabel('x, y, or z (m)')
-    plt.ylabel('residual $B_x$ (true-target)')
-    plt.legend()
-    if(not options.zoom):
-        plt.axvline(x=a/2,color='black',linestyle='--')
-        plt.axvline(x=-a/2,color='black',linestyle='--')
-        plt.axvline(x=a_sensors/2,color='red',linestyle='--')
-        plt.axvline(x=-a_sensors/2,color='red',linestyle='--')
+    np.savetxt('zscan_onesheet.out',np.transpose((points1d[mask],bx1d_zscan[mask],by1d_zscan[mask],bz1d_zscan[mask])))
+    np.savetxt('zscan_onesheet_target.out',np.transpose((points1d[mask],bx1d_target_zscan[mask],by1d_target_zscan[mask],bz1d_target_zscan[mask])))
 
 plt.show()
+
+###########################################################################################
+#Coils Deformation studies, run with -w
+
+# Now let's move some coils
+myset.set_currents(calibrated_vec_i)
+#myset.coil[0].move(-0.1,0,0)
+myset.wiggle(0.1)
+
+if(options.traces and options.wiggle):
+    fig = plt.figure()
+    ax=fig.add_subplot(111,projection='3d')
+    myset.draw_coils(ax)
+    #myarray.draw_sensors(ax)
+    ax.set_xlabel('x (m)')
+    ax.set_ylabel('y (m)')
+    ax.set_zlabel('z (m)')
+    plt.show()
+
+# output metadata, so that we know what's in these data files
+
+from sympy import latex
+
+data={
+    "l":l,
+    "m":m,
+    "Pix":latex(sp.Pix),
+    "Piy":latex(sp.Piy),
+    "Piz":latex(sp.Piz)
+}
+
+import json
+with open('data.json', 'w') as f:
+    json.dump(data, f)
+
+#########################################################################################
+
+#graphing the data from x-,y-,z-scan.out containing the the theoretical target fields and compare with simulations.
+
+# load theoretical fields
+
+data=np.transpose(np.loadtxt('xscan_onesheet.out'))
+x_sim,bx_sim,by_sim,bz_sim=data
+bx_sim=bx_sim*1e9 # convert to nT
+by_sim=by_sim*1e9
+bz_sim=bz_sim*1e9
+
+data=np.transpose(np.loadtxt('yscan_onesheet.out'))
+x_sim,bx_sim,by_sim,bz_sim=data
+bx_sim=bx_sim*1e9 # convert to nT
+by_sim=by_sim*1e9
+bz_sim=bz_sim*1e9
+
+data=np.transpose(np.loadtxt('zscan_onesheet.out'))
+x_sim,bx_sim,by_sim,bz_sim=data
+bx_sim=bx_sim*1e9 # convert to nT
+by_sim=by_sim*1e9
+bz_sim=bz_sim*1e9
+
+#meta data from theoretical fields.
+with open('data.json') as json_file:
+    graphdata=json.load(json_file)

@@ -1,0 +1,56 @@
+import numpy as np
+
+# Initialize empty arrays for magnetic field and matrix
+b_prime = np.zeros((81, 1))  # Magnetic field in three axis for all coils                 
+m = np.zeros((54, 81))  # Coil x Sensor matrix
+
+# Singular Value Decomposition (SVD)
+U, s, VT = np.linalg.svd(m, full_matrices=True)
+
+# Iterate over coils (coilnum00 to coilnum53)
+for i in range(54):
+    file = f"coilnum{i:02d}"
+    print(f"Loading data from: {file}.txt\n")
+    b_coil = np.zeros((81, 3))  # Store magnetic field values for each coil (3 axes per sensor)
+    print(np.shape(b_coil), 'b for each coil is:', b_coil)
+    
+    with open(f'{file}.txt', 'r') as f:
+        lines = f.readlines()
+        header = lines[0].strip()  # Skip header line
+        # Iterate through sensor data lines
+        for line in lines[1:]:
+            if line.strip():  # Remove leading/trailing whitespace
+                values = [float(value) for value in line.strip().split()]
+                if len(values) == 8:  # 3 positions, 3 B-field values, 1 Bmod, and 1 header (should be 8 values)
+                    print(f"Skipping lines without correct dimensions: {line.strip()}")
+                    continue
+                # Extract B-field values for each sensor
+                for j in range(27):  # 27 sensors per coil
+                    bx, by, bz = values[3], values[4], values[5]
+                    print(f"Coil {file}, Sensor {j:02d}, Bx: {bx}, By: {by}, Bz: {bz}")
+                    b_coil[j, 0] = bx  # Store Bx value
+                    b_coil[j, 1] = by  # Store By value
+                    b_coil[j, 2] = bz  # Store Bz value
+                    # Store B-field values in matrix m
+                    m[i, j*3 + 0] = bx
+                    m[i, j*3 + 1] = by
+                    m[i, j*3 + 2] = bz
+
+    # Print out the B-field values for the coil after processing the file
+    print(f"B-field for Coil {file}:")
+    for j in range(27):
+        print(f"Sensor {j:02d}: Bx={b_coil[j, 0]}, By={b_coil[j, 1]}, Bz={b_coil[j, 2]}")
+        
+print(np.shape(m), 'm is', m)
+
+# vec_b is the last b_coil data (for the last coil)
+vec_b = b_coil[-1, :]  # Assuming you want the last sensor's B-field values
+print(np.shape(vec_b), 'vec_b is', vec_b)
+
+# Transpose of matrix m
+capital_M = m.T
+print(np.shape(capital_M), 'capital_M is', capital_M)
+
+# Perform matrix multiplication
+vec_i = capital_M.dot(vec_b)
+print('vec_i is:', vec_i)
