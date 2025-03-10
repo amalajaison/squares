@@ -3,12 +3,17 @@
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+from dipole import *
+from scipy.constants import mu_0, pi
+from patchlib.patch import *
+from Pis.Pislib import *
+
 
 
 '''
 M Katotoka - created  Nov 3,2024
 
-Updated Tue Feb 18 7:41pm 2025 - Modeste complated the code that outputs vec_i, using M.Zhao matrices, for any target vec_b (see line 112)
+Updated Tue Feb 18 7:41pm 2025 - Modeste completed the code that outputs vec_i, using M.Zhao matrices, for any target vec_b (see line 112)
 ---------------------------
 In this code:
 1. Initializes a matrix m, of zeros, shape 54 rows x 81 coloumns: rows: coils, : coloumns: B field at each sensor position  (x,y,z)
@@ -26,11 +31,10 @@ vii) then it assigns these 3 b fields values to the columns of the  b_coil matri
 viii) the builds and fills up the matrix m; building rows(i) and columns(j*3+k)
 ix) we then contruct the matrix by following  a series of steps from line 70
 
----------------------------
-'''
+---------------------------'''
 import csv
 
-#building capitalM Matrix for  M=sc (sensor x coil)
+#building capital_M Matrix for  M=sc (sensor x coil)
                  
 m=np.zeros((54,81))
 #print(np.shape(m),m)
@@ -84,7 +88,7 @@ print('S is:',S)
 S[:capital_M.shape[1],:capital_M.shape[1]]=np.diag(s)
 # Or use "full_matrices=True" in the svd command
 
-# Calculating the inverse on capital_M
+# Calculating the inverse on capital_Mq
 # list of reciprocals
 d=1./s
 print('d is:',d)
@@ -104,10 +108,10 @@ print(Minv.shape)
 #Minv=np.linalg.pinv(capital_M)
 #print(Minv)
 
-#Lets get come current: vec_i: this is required to set on coils to realized the desired field
+#Lets get come current: vec_i: required to set on coils to realized the desired field
 #here vec_b: is the target field. e.g selected by dipole, or G_ellm etc.
 #testing with vec_b=m   change later
-vec_b=m
+vec_b=1
 vec_i=capital_M.dot(vec_b) # using  I= Minv x B
 print('vec_i is:',vec_i)
 print(np.shape(vec_i))

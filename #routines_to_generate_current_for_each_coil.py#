@@ -966,8 +966,7 @@ max_normalized_current=0.04 # Amperes
 calibration_factor=max_normalized_current/max_unnormalized_current
 calibrated_vec_i=vec_i*calibration_factor # Amperes
 
-channel_number =np.arange(54)
-#channel_number =np.arange(50)
+channel_number =np.arange(50)
 my_calibrated_array_i=calibrated_vec_i.reshape(-1,1) # Amperes
 print('my calibrated currents array',my_calibrated_array_i)
 print('my calibrated currents array',size(my_calibrated_array_i))
@@ -985,6 +984,93 @@ with open('current_oneshet.csv','w', newline='') as csvfile:
 # Now let's check what the field should be after setting these currents
 
 myset.set_currents(calibrated_vec_i)
+
+##################################################
+print('current for each coil')
+
+#building capitalM Matrix for  M=sc (sensor x coil)
+                 
+m=np.zeros((54,81))
+#print(np.shape(m),m)
+
+for i in range(54):  # coils from coilnum00 to coilnum53
+    file=f"coilnum{i:02d}" 
+    print(f"Loading data from: {file}.txt\n")
+    b_coil=np.zeros((81,1))  #magnetic field value for  each coils
+    #print(np.shape(b_coil),'b for each coil is:',b_coil)
+    
+    with open(f'{file}.txt','r') as f:
+        lines=f.readlines()
+        header=lines[0].strip()
+        #print(f"Header line: {header}")
+        #print('printing line')
+        #print('lines',lines)
+        #print(type(lines))
+
+
+        for j, line in enumerate(lines[1:]):
+            #print(line)
+            values=[float(value) for value in line.strip().split()]
+            #print(type(values),'Values is:',values)
+            if len(values)==8: # 3 positions, 3 B-field values, 1 Bmod, and 1 header(should be 8 values)
+                print(f"skipping lines without correct dimensions:{line.strip()}")
+                continue
+            #for j in range(27): #this would print the same value above, 27 times. not what we want.
+            bx,by,bz=values[3],values[4],values[5]
+            print(f"{file},sensor{j:02d},Bx:{bx},By:{by},Bz:{bz}\n")
+            b_coil=[bx,by,bz]
+            print(b_coil)
+            for k in range(3):
+                m[i,j*3+k]=b_coil[k]
+#print (np.shape(m),'m is ',m)
+print()
+print()
+#Transpose of matrix m, call  is capital_M: M=s x c
+capital_M=m.T
+print(np.shape(capital_M),'capital_M is: ',capital_M)
+print()
+
+#svd
+U,s,VT=np.linalg.svd(capital_M)
+
+print('s is',s)  #s is a 1D array of  singular values, a list of the diagonal elements, rather than a matrix
+print(type(s))
+
+# now buildin the matrix. 
+S=np.zeros(capital_M.shape)
+print('S is:',S)
+S[:capital_M.shape[1],:capital_M.shape[1]]=np.diag(s)
+# Or use "full_matrices=True" in the svd command
+
+# Calculating the inverse on capital_Mq
+# list of reciprocals
+d=1./s
+print('d is:',d)
+
+D=np.zeros(capital_M.shape)
+#D=np.zeros(capital_M)
+print('D is:',D)
+
+# matrix of recipricols
+D[:capital_M.shape[1],:capital_M.shape[1]]=np.diag(d)
+
+# now....inverse of capital_M
+Minv=VT.T.dot(D.T).dot(U.T)
+print('M inverse is:',Minv)
+print(Minv.shape)
+#or 
+#Minv=np.linalg.pinv(capital_M)
+#print(Minv)
+
+#Lets get come current: vec_i: this is required to set on coils to realized the desired field
+#here vec_b: is the target field. e.g selected by dipole, or G_ellm etc.
+#testing with vec_b=m   change later
+vec_b=myarray.vec_b.
+print('vec_b',vec_b)
+print(vec_b.shape)
+vec_i=capital_M.dot(vec_b) # using  I= Minv x B
+print('vec_i is:',vec_i)
+print(np.shape(vec_i))
 
 # the field at the centre of the coilcube
 r=np.array([0,0,0])

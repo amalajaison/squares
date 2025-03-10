@@ -551,6 +551,50 @@ myset.add_coil(bott_ll)
 myset.add_coil(bott_mb)
 myset.add_coil(bott_lr)
 
+
+'''
+#fix the winding direction of the coils.
+# flip coils that are in the wrong direction.
+
+myset.coil[22].flip_this_coil()
+#myset.coil[25].flip_this_coil()
+
+#re-ordering the coils
+#myset.swap_coils(0,7)
+
+
+# Coil numbering logic
+coils = {}
+# East wall (0 to 8)
+for i in range(9):
+    coils[f'East_{i}']=(i, 'East')
+
+# West wall (9 to 17) - mirror of East wall
+for i in range(9):
+    coils[f'West_{i}']=(9 + i, 'West')
+
+# North wall (18 to 26)
+for i in range(9):
+    coils[f'North_{i}']=(18 + i, 'North')
+
+# South wall (27 to 35) - mirror of North wall
+for i in range(9):
+    coils[f'South_{i}']=(27 + i, 'South')
+
+# Floor (36 to 46)
+for i in range(9):
+    coils[f'Floor_{i}']=(36 + i, 'Floor')
+
+# Ceiling (45 to 53)
+for i in range(9):
+    coils[f'Ceiling_{i}']=(45 + i, 'Ceiling')
+print()
+print(len(coils))
+print(coils)
+'''
+
+##################################################
+
 class sensor:
     def __init__(self,pos):
         self.pos = pos
@@ -966,8 +1010,7 @@ max_normalized_current=0.04 # Amperes
 calibration_factor=max_normalized_current/max_unnormalized_current
 calibrated_vec_i=vec_i*calibration_factor # Amperes
 
-channel_number =np.arange(54)
-#channel_number =np.arange(50)
+channel_number =np.arange(50)
 my_calibrated_array_i=calibrated_vec_i.reshape(-1,1) # Amperes
 print('my calibrated currents array',my_calibrated_array_i)
 print('my calibrated currents array',size(my_calibrated_array_i))
