@@ -235,16 +235,16 @@ myset.add_coil(points_ml)
 myset.add_coil(points_uc)
 myset.add_coil(points_lc)
 '''
-
-myset.add_coil(points_ur)
-myset.add_coil(points_uc)
-myset.add_coil(points_ul)
-myset.add_coil(points_mr)
-myset.add_coil(points_c)
+#this ensures that coils are numbered in a logical fashion
+myset.add_coil(points_ur)  #coil 0
+myset.add_coil(points_uc) #1
+myset.add_coil(points_ul) #2
+myset.add_coil(points_mr) #3
+myset.add_coil(points_c) #4
 myset.add_coil(points_ml)
 myset.add_coil(points_lr)
 myset.add_coil(points_lc)
-myset.add_coil(points_ll)
+myset.add_coil(points_ll) #8
 
 
 # now reflect them all to the other face: xface -> -xface
@@ -255,17 +255,17 @@ def reflect_x(points):
     return newpoints
     
 oside_ur=reflect_x(points_ur)
-oside_ul=reflect_x(points_ul)
+oside_ul=reflect_x(points_ul) 
 oside_ll=reflect_x(points_ll)
 oside_lr=reflect_x(points_lr)
 oside_c=reflect_x(points_c)
 oside_ml=reflect_x(points_ml)
 oside_mr=reflect_x(points_mr)
 oside_uc=reflect_x(points_uc)
-oside_lc=reflect_x(points_lc)
+oside_lc=reflect_x(points_lc) 
 
 
-myset.add_coil(oside_ul)
+myset.add_coil(oside_ul)  #9
 myset.add_coil(oside_uc)
 myset.add_coil(oside_ur)
 myset.add_coil(oside_ml)
@@ -273,7 +273,7 @@ myset.add_coil(oside_c)
 myset.add_coil(oside_mr)
 myset.add_coil(oside_ll)
 myset.add_coil(oside_lc)
-myset.add_coil(oside_lr)
+myset.add_coil(oside_lr) #17
 
 
 
@@ -374,7 +374,7 @@ point4=(x2,y2,-z2)
 side_mb=np.array((point1,point2,point3,point4))
 
 
-myset.add_coil(side_ur)
+myset.add_coil(side_ur) #18
 myset.add_coil(side_mt)
 myset.add_coil(side_ul)
 myset.add_coil(side_mr)
@@ -382,7 +382,7 @@ myset.add_coil(side_c)
 myset.add_coil(side_ml)
 myset.add_coil(side_lr)
 myset.add_coil(side_mb)
-myset.add_coil(side_ll)
+myset.add_coil(side_ll) #26
 
 
 # now reflect them all to the other face: -yface -> yface
@@ -403,7 +403,7 @@ oside_side_mt=reflect_y(side_mt)
 oside_side_mb=reflect_y(side_mb)
 
 
-myset.add_coil(oside_side_ul)
+myset.add_coil(oside_side_ul) #27
 myset.add_coil(oside_side_mt)
 myset.add_coil(oside_side_ur)
 myset.add_coil(oside_side_ml)
@@ -411,7 +411,7 @@ myset.add_coil(oside_side_c)
 myset.add_coil(oside_side_mr)
 myset.add_coil(oside_side_ll)
 myset.add_coil(oside_side_mb)
-myset.add_coil(oside_side_lr)
+myset.add_coil(oside_side_lr) #35
 
 
 # Double phew, now on to the top side  (Floor and ceiling)
@@ -511,15 +511,15 @@ point4=(x2,-y2,z2)
 top_mb=np.array((point1,point2,point3,point4))
 
 
-myset.add_coil(top_ll)
+myset.add_coil(top_ll) #36
 myset.add_coil(top_mb)
 myset.add_coil(top_lr)
 myset.add_coil(top_ml)
 myset.add_coil(top_c)
-myset.add_coil(top_mr)
+myset.add_coil(top_mr) #41
 myset.add_coil(top_ul)
 myset.add_coil(top_mt)
-myset.add_coil(top_ur)
+myset.add_coil(top_ur) #44
 
 
 
@@ -1132,9 +1132,17 @@ with open('data.json', 'w') as f:
 
 #graphing the data from x-,y-,z-scan.out containing the the theoretical target fields and compare with simulations.
 
-# load theoretical fields
+# load simultaed data
 
 data=np.transpose(np.loadtxt('xscan_onesheet.out'))
+x_sim,bx_sim,by_sim,bz_sim=data
+bx_sim=bx_sim*1e9 # convert to nT
+by_sim=by_sim*1e9
+bz_sim=bz_sim*1e9
+
+#load target data
+
+data=np.transpose(np.loadtxt('yscan_onesheet.out'))
 x_sim,bx_sim,by_sim,bz_sim=data
 bx_sim=bx_sim*1e9 # convert to nT
 by_sim=by_sim*1e9
@@ -1146,12 +1154,77 @@ bx_sim=bx_sim*1e9 # convert to nT
 by_sim=by_sim*1e9
 bz_sim=bz_sim*1e9
 
-data=np.transpose(np.loadtxt('zscan_onesheet.out'))
+#meta data from theoretical fields.
+with open('data.json') as json_file:
+    graphdata=json.load(json_file)
+    
+
+#simulation data
+data=np.transpose(np.loadtxt('xscan_onesheet.out'))
 x_sim,bx_sim,by_sim,bz_sim=data
 bx_sim=bx_sim*1e9 # convert to nT
 by_sim=by_sim*1e9
 bz_sim=bz_sim*1e9
+#print('sim data is:',bz_sim)  
+#print()
+#print(type(data))
 
-#meta data from theoretical fields.
+#target field
+data=np.transpose(np.loadtxt('xscan_onesheet_target.out'))
+x_target,bx_target,by_target,bz_target=data
+bx_target=bx_target*1e9 # convert to nT
+by_target=by_target*1e9
+bz_target=bz_target*1e9
+#print()
+#print('target data is:',bz_target)
+
+#meta data for theoretical field
+
+import json
 with open('data.json') as json_file:
     graphdata=json.load(json_file)
+
+
+# position:
+# The scan direction is the minus x direction in simulation
+    
+'''
+#measurement
+plt.figure()
+plt.scatter(-positions[:,0]*.01,-z_data,color="b",label="$B_x(x,0,0)$ meas",marker='.')
+plt.scatter(-positions[:,0]*.01,-x_data,color="r",label="$B_y(x,0,0)$ meas",marker='.')
+plt.scatter(-positions[:,0]*.01,y_data,color="g",label="$B_z(x,0,0)$ meas",marker='.')
+'''
+
+# now plot simulation on top of this
+plt.plot(x_sim,bx_sim,color="b",label="$B_x(x,0,0)$ sim")
+plt.plot(x_sim,by_sim,color="r",label="$B_y(x,0,0)$ sim")
+plt.plot(x_sim,bz_sim,color="g",label="$B_z(x,0,0)$ sim")
+
+
+plt.plot(x_target,bx_target,'--',color="b",label="$B_x(x,0,0)=%s$"%(graphdata['Pix']))
+plt.plot(x_target,by_target,'--',color="r",label="$B_y(x,0,0)=%s$"%(graphdata['Piy']))
+plt.plot(x_target,bz_target,'--',color="g",label="$B_z(x,0,0)=%s$"%(graphdata['Piz']))
+
+plt.xlabel("Position along $x$-axis (cm)")
+plt.ylabel("Magnetic Field (nT)")
+
+ax=plt.gca()
+h,l=ax.get_legend_handles_labels()
+ph=[plt.plot([],marker="", ls="")[0]]*2
+#handles=[ph[0]]+h[::3]+[ph[1]]+h[1::3]+[ph[2]]+h[2::3]
+#labels=["Title 1:"]+l[::3]+["Title 2:"]+l[1::3]+["Title 3:"]+l[2::3]
+handles=[ph[0]]+h[0:3]+[ph[1]]+h[3:6]
+labels=[r"\underline{Simulated}"]+l[0:3]+[r"\underline{Target} $(\ell,m)=(%d,%d)$"%(graphdata['l'],graphdata['m'])]+l[3:6]
+
+
+plt.rc('text',usetex=True)
+plt.xlabel("Position along $x$-axis (cm)")
+plt.ylabel("Magnetic Field (nT)")
+plt.legend(handles, labels, ncol=2)
+
+#plt.savefig("field_measurements_%d_%d.png"%(graphdata['l'],graphdata['m']),dpi=300,bbox_inches='tight')
+
+plt.show()
+
+

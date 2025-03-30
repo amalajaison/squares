@@ -108,10 +108,20 @@ print(Minv.shape)
 #Minv=np.linalg.pinv(capital_M)
 #print(Minv)
 
-#Lets get come current: vec_i: required to set on coils to realized the desired field
+#Lets get some current: vec_i: required to set on each coil to realize the desired field
 #here vec_b: is the target field. e.g selected by dipole, or G_ellm etc.
-#testing with vec_b=m   change later
-vec_b=1
+
+
+#target field
+data=np.transpose(np.loadtxt('xscan_onesheet_target.out'))
+x_target,bx_target,by_target,bz_target=data
+bx_target=bx_target
+by_target=by_target
+bz_target=bz_target
+print()
+print('target data is:',bx_target)
+
+vec_b=bx_target
 vec_i=capital_M.dot(vec_b) # using  I= Minv x B
 print('vec_i is:',vec_i)
 print(np.shape(vec_i))
