@@ -275,26 +275,26 @@ def reflect_x(points):
 # standing inside the MSR would understand them.  But we will not fix that problem
 # right now.
     
-oside_ur=reflect_x(points_ur)
-oside_ul=reflect_x(points_ul)
-oside_ll=reflect_x(points_ll)
-oside_lr=reflect_x(points_lr)
-oside_c=reflect_x(points_c)
-oside_ml=reflect_x(points_ml)
-oside_mr=reflect_x(points_mr)
-oside_uc=reflect_x(points_uc)
-oside_lc=reflect_x(points_lc)
+oside_ur=reflect_x(points_ur) 
+oside_ul=reflect_x(points_ul) 
+oside_ll=reflect_x(points_ll) 
+oside_lr=reflect_x(points_lr) 
+oside_c=reflect_x(points_c)   
+oside_ml=reflect_x(points_ml) 
+oside_mr=reflect_x(points_mr) 
+oside_uc=reflect_x(points_uc) 
+oside_lc=reflect_x(points_lc) 
 
 
-myset.add_coil(oside_ul)
-myset.add_coil(oside_uc)
-myset.add_coil(oside_ur)
-myset.add_coil(oside_ml)
-myset.add_coil(oside_c)
-myset.add_coil(oside_mr)
-myset.add_coil(oside_ll)
-myset.add_coil(oside_lc)
-myset.add_coil(oside_lr)
+myset.add_coil(oside_ul) #9
+myset.add_coil(oside_uc) #10
+myset.add_coil(oside_ur) #11
+myset.add_coil(oside_ml) #12
+myset.add_coil(oside_c)  #13
+myset.add_coil(oside_mr) #14
+myset.add_coil(oside_ll) #15
+myset.add_coil(oside_lc) #16
+myset.add_coil(oside_lr) #17
 
 
 
@@ -397,15 +397,15 @@ point4=(x2,y2,-z2)
 side_mb=np.array((point1,point2,point3,point4))
 
 
-myset.add_coil(side_ur)
-myset.add_coil(side_mt)
-myset.add_coil(side_ul)
-myset.add_coil(side_mr)
-myset.add_coil(side_c)
-myset.add_coil(side_ml)
-myset.add_coil(side_lr)
-myset.add_coil(side_mb)
-myset.add_coil(side_ll)
+myset.add_coil(side_ur) #18
+myset.add_coil(side_mt) #19
+myset.add_coil(side_ul) #20
+myset.add_coil(side_mr) #21
+myset.add_coil(side_c)  #22
+myset.add_coil(side_ml) #23
+myset.add_coil(side_lr) #24
+myset.add_coil(side_mb) #25
+myset.add_coil(side_ll) #26
 
 
 # now reflect them all to the other face: yface -> -yface
@@ -426,15 +426,15 @@ oside_side_mt=reflect_y(side_mt)
 oside_side_mb=reflect_y(side_mb)
 
 
-myset.add_coil(oside_side_ul)
-myset.add_coil(oside_side_mt)
-myset.add_coil(oside_side_ur)
-myset.add_coil(oside_side_ml)
-myset.add_coil(oside_side_c)
-myset.add_coil(oside_side_mr)
-myset.add_coil(oside_side_ll)
-myset.add_coil(oside_side_mb)
-myset.add_coil(oside_side_lr)
+myset.add_coil(oside_side_ul) #27
+myset.add_coil(oside_side_mt) #28
+myset.add_coil(oside_side_ur) #29
+myset.add_coil(oside_side_ml) #30
+myset.add_coil(oside_side_c)  #31
+myset.add_coil(oside_side_mr) #32
+myset.add_coil(oside_side_ll) #33
+myset.add_coil(oside_side_mb) #34
+myset.add_coil(oside_side_lr) #35
 
 
 # Double phew, now on to the top side  (Floor and ceiling)
@@ -536,15 +536,15 @@ top_ms=np.array((point4,point3,point2,point1)) # Jeff/Tahereh
 
 # Jeff and Tahereh completely changed the notation to indicate as-built geometry
 
-myset.add_coil(top_nw)
-myset.add_coil(top_mn)
-myset.add_coil(top_ne)
-myset.add_coil(top_mw)
-myset.add_coil(top_c)
-myset.add_coil(top_me)
-myset.add_coil(top_sw)
-myset.add_coil(top_ms)
-myset.add_coil(top_se)
+myset.add_coil(top_nw) #36
+myset.add_coil(top_mn) #37
+myset.add_coil(top_ne) #38
+myset.add_coil(top_mw) #39
+myset.add_coil(top_c)  #40
+myset.add_coil(top_me) #41
+myset.add_coil(top_sw) #42
+myset.add_coil(top_ms) #43
+myset.add_coil(top_se) #44
 
 
 
@@ -566,15 +566,15 @@ bott_ms=reflect_z(top_ms)
 bott_se=reflect_z(top_se)
 
 
-myset.add_coil(bott_se)
-myset.add_coil(bott_ms)
-myset.add_coil(bott_sw)
-myset.add_coil(bott_me)
-myset.add_coil(bott_c)
-myset.add_coil(bott_mw)
-myset.add_coil(bott_ne)
-myset.add_coil(bott_mn)
-myset.add_coil(bott_nw)
+myset.add_coil(bott_se) #45
+myset.add_coil(bott_ms) #46
+myset.add_coil(bott_sw) #47
+myset.add_coil(bott_me) #48
+myset.add_coil(bott_c)  #49
+myset.add_coil(bott_mw) #50
+myset.add_coil(bott_ne) #51
+myset.add_coil(bott_mn) #52
+myset.add_coil(bott_nw) #53
 
 
 class sensor:
@@ -764,6 +764,7 @@ class the_matrix:
     def check_field_graphically(self,myset,myarray):
         # test each coil by graphing field at each sensor
         for i in range(myset.numcoils):
+
             fig = plt.figure()
             ax=fig.add_subplot(111,projection='3d')
             myset.draw_coil(i,ax)
@@ -827,10 +828,16 @@ if(options.matrices):
 
 vec_i=mymatrix.Minv.dot(myarray.vec_b())
 
+# set currents on coil 4 and coil 22 only
+
+#myset.zero_currents()                  # turn off current from all coils
+
+myset.set_current_in_coil(4,0.04)  #set current to coil 4
+#myset.set_current_in_coil(22,vec_i[22])       #set current to coil 22
 
 # Assign currents to coilcube
 
-myset.set_currents(vec_i)
+#myset.set_currents(vec_i)  #set currents to all coils.
 
 # Check the field at the center of the coilcube
 r=np.array([0,0,0])
@@ -993,7 +1000,6 @@ calibration_factor=max_normalized_current/max_unnormalized_current
 calibrated_vec_i=vec_i*calibration_factor # Amperes
 
 channel_number=np.arange(54)
-#channel_number =np.arange(50)
 my_calibrated_array_i=calibrated_vec_i.reshape(-1,1) # Amperes
 print('my calibrated currents array',my_calibrated_array_i)
 print('my calibrated currents array',size(my_calibrated_array_i))
@@ -1010,7 +1016,13 @@ with open('current.csv','w', newline='') as csvfile:
 
 # Now let's check what the field should be after setting these currents
 
-myset.set_currents(calibrated_vec_i)
+#myset.zero_currents()                           # turn off all currents.
+
+myset.set_current_in_coil(4,calibrated_vec_i[4])  #set calibrated current to coil 4
+#myset.set_current_in_coil(22,calibrated_vec_i[22])       #set calibrated current to coil 22
+
+#myset.set_currents(calibrated_vec_i)  # for all coils in the box.
+
 
 # the field at the centre of the coilcube
 r=np.array([0,0,0])
@@ -1155,7 +1167,7 @@ with open('data.json', 'w') as f:
     json.dump(data, f)
 
 #########################################################################################
-
+'''
 #graphing the data from x-,y-,z-scan.out containing the the theoretical target fields and compare with simulations.
 
 # load theoretical fields
@@ -1181,3 +1193,4 @@ bz_sim=bz_sim*1e9
 #meta data from theoretical fields.
 with open('data.json') as json_file:
     graphdata=json.load(json_file)
+'''
