@@ -113,18 +113,7 @@ y_data=by_ave*(100/10)
 z_data=bz_ave*(100/10)
 
 print(len(x_data),'x_data is:',x_data)
-
-# COMSOL all coils
-
-data_com= np.loadtxt('xscan_comsol.txt',delimiter=None,comments='%',skiprows=6) #all coils_comsol
-#print('comsol',data_com)
-#print(len(data_com))
-pos_com_all=data_com[:,0] # in m
-bx_com_all=data_com[:,3]*3*(10**9)
-by_com_all=data_com[:,4]*3*(10**9)
-bz_com_all=data_com[:,5]*3*(10**9)#nT
-print(by_com_all)
-
+ 
 # coil 4 fluxgate meausurement April 3, 2025
 print('Coil 4 data')
 data4= np.loadtxt('coil4_Apr3.csv', delimiter=',', skiprows=19, usecols=(1,2,3,7))
@@ -161,20 +150,18 @@ x_data4=bx_ave4*(100/10) # field(nT)=field(V)*(100 nT/10 V)
 y_data4=by_ave4*(100/10)
 z_data4=bz_ave4*(100/10)
 
-#load coil 4 COMSOL  data G10
+#load coil 4 COMSOL  data
 
-data_com= np.loadtxt('bx_on_x_comsol',delimiter=None,comments='%',skiprows=6)  #coil 4 comsol
-#print('comsol',data_com)
+data_com=np.loadtxt('bx_on_x_comsol',delimiter=None,comments='%',skiprows=6)
+print('comsol',data_com)
 #print(len(data_com))
-pos_com_4=data_com[:,0] # in m
-bx_com_4=data_com[:,1]*3 
-#by_com_4=data_com[:,4]*3
-#bz_com_4=data_com[:,5]*3#nT
-print(bx_com_4)
-
+pos_com=data_com[:,0] # in m
+bx_com=data_com[:,1]*3
+#by_com=data_com[:,4]*3*(10**9)
+#bz_com=data_com[:,5]*3*(10**9)#nT
+#print(by_com)
 
 # coil 22 fluxgate meausurement April 3, 2025
-
 print('Coil 22 data')
 data22= np.loadtxt('coil22_Apr3.csv', delimiter=',', skiprows=19, usecols=(1,2,3,7))
 print(data)
@@ -210,16 +197,13 @@ x_data22=bx_ave22*(100/10) # field(nT)=field(V)*(100 nT/10 V)
 y_data22=by_ave22*(100/10)
 z_data22=bz_ave22*(100/10)
 
-'''
-scanning direction along x-axis
 
+#scanning direction along x-axis
+'''
 fluxgate z-axis direction =  x direction in simulation
 fluxgate minus y-axis direction =  y-axis direction in simulation
 fluxgate x-axis direction =  posi z-axis direction in simulation
 '''
-
-
-#Now plots
 
 # measurement all coils:
 plt.figure(1)
@@ -227,6 +211,8 @@ plt.figure(1)
 plt.scatter(-positions,z_data,color="b",label="$B_x(x,0,0)$",marker='.')
 plt.scatter(-positions,-y_data,color="r",label="$B_y(x,0,0)$",marker='.')
 plt.scatter(-positions,x_data,color="g",label="$B_z(x,0,0)$",marker='.')
+
+
 
 ax=plt.gca()
 h,l=ax.get_legend_handles_labels()
@@ -239,7 +225,7 @@ plt.xlabel("Position along $x$-axis (m)")
 plt.xlim([-1.1,1.1])
 plt.ylim([-35,35])
 plt.ylabel("Magnetic Field (nT)")
-plt.legend(handles, labels, ncol=1, fontsize=14)
+plt.legend(handles, labels, ncol=1)
 
 plt.savefig("map_my_shims_measured_all.png",dpi=300,bbox_inches='tight')
 
@@ -254,74 +240,64 @@ plt.scatter(-positions,-y_data,color="r",label="$B_y(x,0,0)$",marker='.')
 plt.scatter(-positions,x_data,color="g",label="$B_z(x,0,0)$",marker='.')
 
 # now plot simulation on top of this
-
 plt.plot(x_sim,bx_sim,color="b",label="$B_x(x,0,0)$")
-plt.plot(0,0,color="none",label=' ')
-plt.plot(0,0,color="none",label=' ')
+plt.plot(x_sim,by_sim,color="r",label="$B_y(x,0,0)$")
+plt.plot(x_sim,bz_sim,color="g",label="$B_z(x,0,0)$")
 
-#plt.plot(x_sim,by_sim,color="r",label="$B_y(x,0,0)$")
-#plt.plot(x_sim,bz_sim,color="g",label="$B_z(x,0,0)$")
-
-#target plot
-
+#target
 plt.plot(x_target,bx_target,'--',color="b",label="$B_x(x,0,0)=%s$"%(graphdata['Pix']))
-plt.plot(0,0,color="none",label=' ')
-plt.plot(0,0,color="none",label=' ')
+plt.plot(x_target,by_target,'--',color="r",label="$B_y(x,0,0)=%s$"%(graphdata['Piy']))
+plt.plot(x_target,bz_target,'--',color="g",label="$B_z(x,0,0)=%s$"%(graphdata['Piz']))
 
 
-#plt.plot(x_target,by_target,'--',color="r",label="$B_y(x,0,0)=%s$"%(graphdata['Piy']))
-#plt.plot(x_target,bz_target,'--',color="g",label="$B_z(x,0,0)=%s$"%(graphdata['Piz']))
-
-
-#image current effects
-
+#now plot simulation with factor of 2: image current effects
 plt.plot(x_sim,bx_sim_app,color="purple",label="$B_x(x,0,0)$")
-plt.plot(0,0,color="none",label=' ')
-plt.plot(0,0,color="none",label=' ')
+plt.plot(x_sim,by_sim_app,'--',color='r',label="$B_y(x,0,0)$")
+plt.plot(x_sim,bz_sim_app,'--',color='g',label="$B_z(x,0,0)$")
 
 
-#plt.plot(x_sim,by_sim_app,'--',color='r',label="$B_y(x,0,0)$")
-#plt.plot(x_sim,bz_sim_app,'--',color='g',label="$B_z(x,0,0)$")
+# now plot target with factor of 2
+#plt.plot(x_target,bx_target_app,'--',color="black")
+#plt.plot(x_target,by_target_app, color='orange')
+#plt.plot(x_target,bz_target_app, color='orange')
 
-
-#grey band showing theory approximation
-
+#band showing theory approximation, most likely  between simulated fields
+# for simulation
 plt.fill_between(x_sim,bx_sim,bx_sim_app,facecolor='gray',alpha=0.12)
-#plt.fill_between(x_sim,by_sim,by_sim_app,facecolor='gray',alpha=0.12)
-#plt.fill_between(x_sim,bz_sim,bz_sim_app,facecolor='gray',alpha=0.12)
+plt.fill_between(x_sim,by_sim,by_sim_app,facecolor='gray',alpha=0.12)
+plt.fill_between(x_sim,bz_sim,bz_sim_app,facecolor='gray',alpha=0.12)
 
 #COMSOL result
 
-plt.plot(pos_com_all,bx_com_all,color="magenta",label="$B_x(x,0,0)$")
-plt.plot(0,0,color="none",label=' ')
-plt.plot(0,0,color="none",label=' ')
-
-
-#plt.plot(0,0, color='orange',label="$B_y$")
-#plt.plot(0,0, color='brown',label="$B_z$")
+#plt.plot(pos_com,bx_com,color="magenta",label="$B_x(x,0,0)$")
+#plt.plot(pos_com,by_com, color='orange',label="$B_y$")
+#plt.plot(pos_com,bz_com, color='orange',label="$B_z$")
 
 #plt.axhline(0, color='orange', linestyle='--')
 
 
-plt.xlabel("Position along $x$-axis (m)",fontsize=16)
-plt.ylabel("Magnetic Field (nT)",fontsize=16)
+plt.xlabel("Position along $x$-axis (m)",fontsize=12)
+plt.ylabel("Magnetic Field (nT)",fontsize=12)
 
 
 ax=plt.gca()
 h,l=ax.get_legend_handles_labels()
-ph=[plt.plot([],marker="", ls="")[0]]*5
-handles=[ph[0]]+h[0:3]+[ph[1]]+h[3:6]+[ph[2]]+h[6:9]+[ph[3]]+h[9:12]+[ph[4]]+h[12:15]
-labels=[r'\underline{Measured}']+l[0:3]+[r"\underline{Free space}"]+l[3:6]+[r"\underline{Target} $(\ell,m)=(%d,%d)$"%(graphdata['l'],graphdata['m'])]+l[6:9]+[r"\underline{Image current effects}"]+l[9:12]+[r"\underline{COMSOL}"]+l[12:15]
+ph=[plt.plot([],marker="", ls="")[0]]*4
+handles=[ph[0]]+h[0:3]+[ph[1]]+h[3:6]+[ph[2]]+h[6:9]+[ph[3]]+h[9:12]
+#+[ph[4]]+h[12:15]
+labels=[r'\underline{Measured}']+l[0:3]+[r"\underline{Simulated: In free space}"]+l[3:6]+[r"\underline{Target} $(\ell,m)=(%d,%d)$"%(graphdata['l'],graphdata['m'])]+l[6:9]+[r"\underline{Image current effects: $\approx$ a factor of 2}"]+l[9:12]
+
+#+[r"\underline{COMSOL}"]+l[12:15]
 
 
 plt.rc('text',usetex=True)
 plt.xlabel("Position along $x$-axis (m)")
 plt.xlim([-1.1,1.1])
-plt.ylim([-40,40])
+plt.ylim([-35,35])
 plt.ylabel("Magnetic Field (nT)")
-plt.legend(handles, labels, ncol=5,fontsize=13)
+plt.legend(handles, labels, ncol=4,fontsize=12)
 
-#plt.savefig("map_my_shims_models.png",dpi=300)
+plt.savefig("map_my_shims_models.png",dpi=300)
 
 plt.show()
 
@@ -330,8 +306,8 @@ plt.show()
 plt.figure(3)
 
 plt.scatter(positions,z_data4,color="b",label="$B_x(x,0,0)$",marker='.')
-#plt.scatter(positions,-y_data4,color="r",label="$B_y(x,0,0)$",marker='.')
-#plt.scatter(positions,x_data4,color="g",label="$B_z(x,0,0)$",marker='.')
+plt.scatter(positions,-y_data4,color="r",label="$B_y(x,0,0)$",marker='.')
+plt.scatter(positions,x_data4,color="g",label="$B_z(x,0,0)$",marker='.')
 
 
 
@@ -346,7 +322,7 @@ plt.xlabel("Position along $x$-axis (m)")
 plt.xlim([-1.1,1.1])
 plt.ylim([-60,60])
 plt.ylabel("Coil $4$ Magnetic Field (nT)")
-plt.legend(handles, labels, ncol=1,fontsize=14)
+plt.legend(handles, labels, ncol=1)
 
 plt.savefig("map_my_shims_coil4.png",dpi=300,bbox_inches='tight')
 
@@ -357,47 +333,44 @@ plt.show()
 plt.figure(4)
 
 plt.scatter(positions,z_data4,color="b",label="$B_x(x,0,0)$",marker='.')
-#plt.scatter(0,0,color="r",label="$B_y(x,0,0)$",marker='.')
-#plt.scatter(0,0,color="g",label="$B_z(x,0,0)$",marker='.')
-
-#plt.scatter(positions,z_data4,color="b",label="$B_x(x,0,0)$",marker='.')
-#plt.scatter(positions,-y_data4,color="r",label="$B_y(x,0,0)$",marker='.')
-#plt.scatter(positions,x_data4,color="g",label="$B_z(x,0,0)$",marker='.')
-
+plt.scatter(positions,-y_data4,color="r",label="$B_y(x,0,0)$",marker='.')
+plt.scatter(positions,x_data4,color="g",label="$B_z(x,0,0)$",marker='.')
 
 # now plot simulation on top of this
-
 plt.plot(x_sim,bx_sim,color="b",label="$B_x(x,0,0)$")
-#plt.plot(x_sim,by_sim,color="r",label="$B_y(x,0,0)$")
-#plt.plot(x_sim,bz_sim,color="g",label="$B_z(x,0,0)$")
+plt.plot(x_sim,by_sim,color="r",label="$B_y(x,0,0)$")
+plt.plot(x_sim,bz_sim,color="g",label="$B_z(x,0,0)$")
 
-#target plot
-
+#target
 #plt.plot(x_target,bx_target,'--',color="b",label="$B_x(x,0,0)=%s$"%(graphdata['Pix']))
 #plt.plot(x_target,by_target,'--',color="r",label="$B_y(x,0,0)=%s$"%(graphdata['Piy']))
 #plt.plot(x_target,bz_target,'--',color="g",label="$B_z(x,0,0)=%s$"%(graphdata['Piz']))
 
 
-#image current effects
-
+#now plot simulation with factor of 2: image current effects
 plt.plot(x_sim,bx_sim_app,color="purple",label="$B_x(x,0,0)$")
-#plt.plot(x_sim,by_sim_app,'--',color='r',label="$B_y(x,0,0)$")
-#plt.plot(x_sim,bz_sim_app,'--',color='g',label="$B_z(x,0,0)$")
+plt.plot(x_sim,by_sim_app,'--',color='r',label="$B_y(x,0,0)$")
+plt.plot(x_sim,bz_sim_app,'--',color='g',label="$B_z(x,0,0)$")
 
 
-#grey band
+# now plot target with factor of 2
+#plt.plot(x_target,bx_target_app,'--',color="black")
+#plt.plot(x_target,by_target_app, color='orange')
+#plt.plot(x_target,bz_target_app, color='orange')
 
+#band showing theory approximation, most likely  between simulated fields
+# for simulation
 plt.fill_between(x_sim,bx_sim,bx_sim_app,facecolor='gray',alpha=0.12)
-#plt.fill_between(x_sim,by_sim,by_sim_app,facecolor='gray',alpha=0.12)
-#plt.fill_between(x_sim,bz_sim,bz_sim_app,facecolor='gray',alpha=0.12)
+plt.fill_between(x_sim,by_sim,by_sim_app,facecolor='gray',alpha=0.12)
+plt.fill_between(x_sim,bz_sim,bz_sim_app,facecolor='gray',alpha=0.12)
 
 #COMSOL result
 
-plt.plot(pos_com_4,bx_com_4,color="magenta",label="$B_x(x,0,0)$")
-#plt.plot(0,0, color='orange',label="$B_y(x,0,0)$")
-#plt.plot(0,0, color='orange',label="$B_z(x,0,0)$")
+plt.plot(pos_com,bx_com,color="magenta",label="$B_x(x,0,0)$")
+plt.plot(0,0, color='orange',label="$B_y$")
+plt.plot(0,0, color='brown',label="$B_z$")
 
-#plt.axhline(0, color='orange', linestyle='--')
+plt.axhline(0, color='orange', linestyle='--')
 
 
 plt.xlabel("Position along $x$-axis (m)",fontsize=12)
@@ -407,21 +380,20 @@ plt.ylabel("Coil $4$ Magnetic Field (nT)",fontsize=12)
 ax=plt.gca()
 h,l=ax.get_legend_handles_labels()
 ph=[plt.plot([],marker="", ls="")[0]]*4
-handles=[ph[0]]+h[0:1]+[ph[1]]+h[1:2]+[ph[2]]+h[2:3]+[ph[3]]+h[3:4]
-labels=[r'\underline{Measured}']+l[0:1]+[r"\underline{Free space}"]+l[1:2]+[r"\underline{Image current effects}"]+l[2:3]+[r"\underline{COMSOL}"]+l[3:4]
+handles=[ph[0]]+h[0:3]+[ph[1]]+h[3:6]+[ph[2]]+h[6:9]+[ph[3]]+h[9:12]
+labels=[r'\underline{Measured}']+l[0:3]+[r"\underline{Simulated: In free space}"]+l[3:6]+[r"\underline{Image current effects: $\approx$ a factor of 2}"]+l[6:9]+[r"\underline{COMSOL}"]+l[9:12]
 
 
 plt.rc('text',usetex=True)
 plt.xlabel("Position along $x$-axis (m)")
 #plt.xlim([-1.1,1.1])
-#plt.ylim([-505,0.1])
+#plt.ylim([-60,60])
 plt.ylabel("Coil $4$ Magnetic Field (nT)")
-plt.legend(handles, labels, ncol=4,fontsize=14)
+plt.legend(handles, labels, ncol=4,fontsize=12)
 
-plt.savefig("map_my_shims_coil4_models.png",bbox_inches='tight',dpi=300)
+plt.savefig("map_my_shims_coil4_models.png",dpi=300)
 
 plt.show()
-
 
 #measurement for coil 22
 plt.figure(5)
@@ -441,7 +413,7 @@ plt.xlabel("Position along $x$-axis (m)")
 plt.xlim([-1.1,1.1])
 plt.ylim([-35,35])
 plt.ylabel("Coil $22$ Magnetic Field (nT)")
-plt.legend(handles, labels, ncol=1,fontsize=14)
+plt.legend(handles, labels, ncol=1)
 
 plt.savefig("map_my_shims_coil22.png",dpi=300,bbox_inches='tight')
 
@@ -492,8 +464,8 @@ plt.fill_between(x_sim,bz_sim,bz_sim_app,facecolor='gray',alpha=0.12)
 #plt.axhline(0, color='orange', linestyle='--')
 
 
-plt.xlabel("Position along $x$-axis (m)",fontsize=14)
-plt.ylabel("Coil $22$ Magnetic Field (nT)",fontsize=14)
+plt.xlabel("Position along $x$-axis (m)",fontsize=12)
+plt.ylabel("Coil $22$ Magnetic Field (nT)",fontsize=12)
 
 
 ax=plt.gca()
@@ -511,10 +483,8 @@ plt.xlabel("Position along $x$-axis (m)")
 plt.xlim([-1.1,1.1])
 plt.ylim([-35,35])
 plt.ylabel("Coil $22$ Magnetic Field (nT)")
-plt.legend(handles, labels, ncol=3,fontsize=14)
+plt.legend(handles, labels, ncol=3,fontsize=12)
 
 plt.savefig("map_my_shims_coil22_models.png",dpi=300)
 
 plt.show()
-
-

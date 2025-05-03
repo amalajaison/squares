@@ -832,12 +832,13 @@ vec_i=mymatrix.Minv.dot(myarray.vec_b())
 
 #myset.zero_currents()                  # turn off current from all coils
 
-myset.set_current_in_coil(4,0.04)  #set current to coil 4
+#myset.set_current_in_coil(4,0.04)  #set current to coil 4
+
 #myset.set_current_in_coil(22,vec_i[22])       #set current to coil 22
 
 # Assign currents to coilcube
 
-#myset.set_currents(vec_i)  #set currents to all coils.
+myset.set_currents(vec_i)  #set currents to all coils.
 
 # Check the field at the center of the coilcube
 r=np.array([0,0,0])
@@ -1018,10 +1019,10 @@ with open('current.csv','w', newline='') as csvfile:
 
 #myset.zero_currents()                           # turn off all currents.
 
-myset.set_current_in_coil(4,calibrated_vec_i[4])  #set calibrated current to coil 4
+#myset.set_current_in_coil(4,calibrated_vec_i[4])  #set calibrated current to coil 4
 #myset.set_current_in_coil(22,calibrated_vec_i[22])       #set calibrated current to coil 22
 
-#myset.set_currents(calibrated_vec_i)  # for all coils in the box.
+myset.set_currents(calibrated_vec_i)  # for all coils in the box.
 
 
 # the field at the centre of the coilcube
