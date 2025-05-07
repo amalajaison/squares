@@ -40,7 +40,7 @@ m=np.zeros((54,81))
 #print(np.shape(m),m)
 
 for i in range(54):  # coils from coilnum00 to coilnum53
-    file=f"coilnum{i:02d}" 
+    file=f"/Users/modestekatotoka/Desktop/tucan_2024/tucan/modeste_squares/squares/shim-coil-mz-matrix/coilnum{i:02d}" 
     print(f"Loading data from: {file}.txt\n")
     b_coil=np.zeros((81,1))  #magnetic field value for  each coils
     print(np.shape(b_coil),'b for each coil is:',b_coil)
@@ -121,8 +121,8 @@ bz_target=bz_target
 print()
 print('target data is:',bx_target)
 
-vec_b=bx_target
-vec_i=capital_M.dot(vec_b) # using  I= Minv x B
-print('vec_i is:',vec_i)
-print(np.shape(vec_i))
+#vec_b=bx_target
+#vec_i=capital_M.dot(vec_b) # using  I= Minv x B
+#print('vec_i is:',vec_i)
+#print(np.shape(vec_i))
 
