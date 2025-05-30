@@ -235,16 +235,16 @@ myset.add_coil(points_ml)
 myset.add_coil(points_uc)
 myset.add_coil(points_lc)
 '''
-#this ensures that coils are numbered in a logical fashion
-myset.add_coil(points_ur)  #coil 0
-myset.add_coil(points_uc) #1
-myset.add_coil(points_ul) #2
-myset.add_coil(points_mr) #3
-myset.add_coil(points_c) #4
+
+myset.add_coil(points_ur)
+myset.add_coil(points_uc)
+myset.add_coil(points_ul)
+myset.add_coil(points_mr)
+myset.add_coil(points_c)
 myset.add_coil(points_ml)
 myset.add_coil(points_lr)
 myset.add_coil(points_lc)
-myset.add_coil(points_ll) #8
+myset.add_coil(points_ll)
 
 
 # now reflect them all to the other face: xface -> -xface
@@ -255,17 +255,17 @@ def reflect_x(points):
     return newpoints
     
 oside_ur=reflect_x(points_ur)
-oside_ul=reflect_x(points_ul) 
+oside_ul=reflect_x(points_ul)
 oside_ll=reflect_x(points_ll)
 oside_lr=reflect_x(points_lr)
 oside_c=reflect_x(points_c)
 oside_ml=reflect_x(points_ml)
 oside_mr=reflect_x(points_mr)
 oside_uc=reflect_x(points_uc)
-oside_lc=reflect_x(points_lc) 
+oside_lc=reflect_x(points_lc)
 
 
-myset.add_coil(oside_ul)  #9
+myset.add_coil(oside_ul)
 myset.add_coil(oside_uc)
 myset.add_coil(oside_ur)
 myset.add_coil(oside_ml)
@@ -273,7 +273,7 @@ myset.add_coil(oside_c)
 myset.add_coil(oside_mr)
 myset.add_coil(oside_ll)
 myset.add_coil(oside_lc)
-myset.add_coil(oside_lr) #17
+myset.add_coil(oside_lr)
 
 
 
@@ -374,7 +374,7 @@ point4=(x2,y2,-z2)
 side_mb=np.array((point1,point2,point3,point4))
 
 
-myset.add_coil(side_ur) #18
+myset.add_coil(side_ur)
 myset.add_coil(side_mt)
 myset.add_coil(side_ul)
 myset.add_coil(side_mr)
@@ -382,7 +382,7 @@ myset.add_coil(side_c)
 myset.add_coil(side_ml)
 myset.add_coil(side_lr)
 myset.add_coil(side_mb)
-myset.add_coil(side_ll) #26
+myset.add_coil(side_ll)
 
 
 # now reflect them all to the other face: -yface -> yface
@@ -403,7 +403,7 @@ oside_side_mt=reflect_y(side_mt)
 oside_side_mb=reflect_y(side_mb)
 
 
-myset.add_coil(oside_side_ul) #27
+myset.add_coil(oside_side_ul)
 myset.add_coil(oside_side_mt)
 myset.add_coil(oside_side_ur)
 myset.add_coil(oside_side_ml)
@@ -411,7 +411,7 @@ myset.add_coil(oside_side_c)
 myset.add_coil(oside_side_mr)
 myset.add_coil(oside_side_ll)
 myset.add_coil(oside_side_mb)
-myset.add_coil(oside_side_lr) #35
+myset.add_coil(oside_side_lr)
 
 
 # Double phew, now on to the top side  (Floor and ceiling)
@@ -511,15 +511,15 @@ point4=(x2,-y2,z2)
 top_mb=np.array((point1,point2,point3,point4))
 
 
-myset.add_coil(top_ll) #36
+myset.add_coil(top_ll)
 myset.add_coil(top_mb)
 myset.add_coil(top_lr)
 myset.add_coil(top_ml)
 myset.add_coil(top_c)
-myset.add_coil(top_mr) #41
+myset.add_coil(top_mr)
 myset.add_coil(top_ul)
 myset.add_coil(top_mt)
-myset.add_coil(top_ur) #44
+myset.add_coil(top_ur)
 
 
 
@@ -966,8 +966,7 @@ max_normalized_current=0.04 # Amperes
 calibration_factor=max_normalized_current/max_unnormalized_current
 calibrated_vec_i=vec_i*calibration_factor # Amperes
 
-channel_number =np.arange(54)
-#channel_number =np.arange(50)
+channel_number =np.arange(50)
 my_calibrated_array_i=calibrated_vec_i.reshape(-1,1) # Amperes
 print('my calibrated currents array',my_calibrated_array_i)
 print('my calibrated currents array',size(my_calibrated_array_i))
@@ -985,6 +984,93 @@ with open('current_oneshet.csv','w', newline='') as csvfile:
 # Now let's check what the field should be after setting these currents
 
 myset.set_currents(calibrated_vec_i)
+
+##################################################
+print('current for each coil')
+
+#building capitalM Matrix for  M=sc (sensor x coil)
+                 
+m=np.zeros((54,81))
+#print(np.shape(m),m)
+
+for i in range(54):  # coils from coilnum00 to coilnum53
+    file=f"coilnum{i:02d}" 
+    print(f"Loading data from: {file}.txt\n")
+    b_coil=np.zeros((81,1))  #magnetic field value for  each coils
+    #print(np.shape(b_coil),'b for each coil is:',b_coil)
+    
+    with open(f'{file}.txt','r') as f:
+        lines=f.readlines()
+        header=lines[0].strip()
+        #print(f"Header line: {header}")
+        #print('printing line')
+        #print('lines',lines)
+        #print(type(lines))
+
+
+        for j, line in enumerate(lines[1:]):
+            #print(line)
+            values=[float(value) for value in line.strip().split()]
+            #print(type(values),'Values is:',values)
+            if len(values)==8: # 3 positions, 3 B-field values, 1 Bmod, and 1 header(should be 8 values)
+                print(f"skipping lines without correct dimensions:{line.strip()}")
+                continue
+            #for j in range(27): #this would print the same value above, 27 times. not what we want.
+            bx,by,bz=values[3],values[4],values[5]
+            print(f"{file},sensor{j:02d},Bx:{bx},By:{by},Bz:{bz}\n")
+            b_coil=[bx,by,bz]
+            print(b_coil)
+            for k in range(3):
+                m[i,j*3+k]=b_coil[k]
+#print (np.shape(m),'m is ',m)
+print()
+print()
+#Transpose of matrix m, call  is capital_M: M=s x c
+capital_M=m.T
+print(np.shape(capital_M),'capital_M is: ',capital_M)
+print()
+
+#svd
+U,s,VT=np.linalg.svd(capital_M)
+
+print('s is',s)  #s is a 1D array of  singular values, a list of the diagonal elements, rather than a matrix
+print(type(s))
+
+# now buildin the matrix. 
+S=np.zeros(capital_M.shape)
+print('S is:',S)
+S[:capital_M.shape[1],:capital_M.shape[1]]=np.diag(s)
+# Or use "full_matrices=True" in the svd command
+
+# Calculating the inverse on capital_Mq
+# list of reciprocals
+d=1./s
+print('d is:',d)
+
+D=np.zeros(capital_M.shape)
+#D=np.zeros(capital_M)
+print('D is:',D)
+
+# matrix of recipricols
+D[:capital_M.shape[1],:capital_M.shape[1]]=np.diag(d)
+
+# now....inverse of capital_M
+Minv=VT.T.dot(D.T).dot(U.T)
+print('M inverse is:',Minv)
+print(Minv.shape)
+#or 
+#Minv=np.linalg.pinv(capital_M)
+#print(Minv)
+
+#Lets get come current: vec_i: this is required to set on coils to realized the desired field
+#here vec_b: is the target field. e.g selected by dipole, or G_ellm etc.
+#testing with vec_b=m   change later
+vec_b=myarray.vec_b.
+print('vec_b',vec_b)
+print(vec_b.shape)
+vec_i=capital_M.dot(vec_b) # using  I= Minv x B
+print('vec_i is:',vec_i)
+print(np.shape(vec_i))
 
 # the field at the centre of the coilcube
 r=np.array([0,0,0])
@@ -1132,7 +1218,7 @@ with open('data.json', 'w') as f:
 
 #graphing the data from x-,y-,z-scan.out containing the the theoretical target fields and compare with simulations.
 
-# load simultaed data
+# load theoretical fields
 
 data=np.transpose(np.loadtxt('xscan_onesheet.out'))
 x_sim,bx_sim,by_sim,bz_sim=data
@@ -1140,15 +1226,13 @@ bx_sim=bx_sim*1e9 # convert to nT
 by_sim=by_sim*1e9
 bz_sim=bz_sim*1e9
 
-#load target data
-
 data=np.transpose(np.loadtxt('yscan_onesheet.out'))
 x_sim,bx_sim,by_sim,bz_sim=data
 bx_sim=bx_sim*1e9 # convert to nT
 by_sim=by_sim*1e9
 bz_sim=bz_sim*1e9
 
-data=np.transpose(np.loadtxt('yscan_onesheet.out'))
+data=np.transpose(np.loadtxt('zscan_onesheet.out'))
 x_sim,bx_sim,by_sim,bz_sim=data
 bx_sim=bx_sim*1e9 # convert to nT
 by_sim=by_sim*1e9
@@ -1157,74 +1241,3 @@ bz_sim=bz_sim*1e9
 #meta data from theoretical fields.
 with open('data.json') as json_file:
     graphdata=json.load(json_file)
-    
-
-#simulation data
-data=np.transpose(np.loadtxt('xscan_onesheet.out'))
-x_sim,bx_sim,by_sim,bz_sim=data
-bx_sim=bx_sim*1e9 # convert to nT
-by_sim=by_sim*1e9
-bz_sim=bz_sim*1e9
-#print('sim data is:',bz_sim)  
-#print()
-#print(type(data))
-
-#target field
-data=np.transpose(np.loadtxt('xscan_onesheet_target.out'))
-x_target,bx_target,by_target,bz_target=data
-bx_target=bx_target*1e9 # convert to nT
-by_target=by_target*1e9
-bz_target=bz_target*1e9
-#print()
-#print('target data is:',bz_target)
-
-#meta data for theoretical field
-
-import json
-with open('data.json') as json_file:
-    graphdata=json.load(json_file)
-
-
-# position:
-# The scan direction is the minus x direction in simulation
-    
-'''
-#measurement
-plt.figure()
-plt.scatter(-positions[:,0]*.01,-z_data,color="b",label="$B_x(x,0,0)$ meas",marker='.')
-plt.scatter(-positions[:,0]*.01,-x_data,color="r",label="$B_y(x,0,0)$ meas",marker='.')
-plt.scatter(-positions[:,0]*.01,y_data,color="g",label="$B_z(x,0,0)$ meas",marker='.')
-'''
-
-# now plot simulation on top of this
-plt.plot(x_sim,bx_sim,color="b",label="$B_x(x,0,0)$ sim")
-plt.plot(x_sim,by_sim,color="r",label="$B_y(x,0,0)$ sim")
-plt.plot(x_sim,bz_sim,color="g",label="$B_z(x,0,0)$ sim")
-
-
-plt.plot(x_target,bx_target,'--',color="b",label="$B_x(x,0,0)=%s$"%(graphdata['Pix']))
-plt.plot(x_target,by_target,'--',color="r",label="$B_y(x,0,0)=%s$"%(graphdata['Piy']))
-plt.plot(x_target,bz_target,'--',color="g",label="$B_z(x,0,0)=%s$"%(graphdata['Piz']))
-
-plt.xlabel("Position along $x$-axis (cm)")
-plt.ylabel("Magnetic Field (nT)")
-
-ax=plt.gca()
-h,l=ax.get_legend_handles_labels()
-ph=[plt.plot([],marker="", ls="")[0]]*2
-#handles=[ph[0]]+h[::3]+[ph[1]]+h[1::3]+[ph[2]]+h[2::3]
-#labels=["Title 1:"]+l[::3]+["Title 2:"]+l[1::3]+["Title 3:"]+l[2::3]
-handles=[ph[0]]+h[0:3]+[ph[1]]+h[3:6]
-labels=[r"\underline{Simulated}"]+l[0:3]+[r"\underline{Target} $(\ell,m)=(%d,%d)$"%(graphdata['l'],graphdata['m'])]+l[3:6]
-
-
-plt.rc('text',usetex=True)
-plt.xlabel("Position along $x$-axis (cm)")
-plt.ylabel("Magnetic Field (nT)")
-plt.legend(handles, labels, ncol=2)
-
-#plt.savefig("field_measurements_%d_%d.png"%(graphdata['l'],graphdata['m']),dpi=300,bbox_inches='tight')
-
-plt.show()
-
-

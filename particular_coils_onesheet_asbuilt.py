@@ -14,7 +14,10 @@
 
 #Fri July 19 2024, Modeste added the opting to draw the msr and coroplast set up at line 1056 run with options -p.
 
-
+# Wed Mar 26 16:46:14 PDT 2025 Jeff and Tahereh, fixing all the mutual mistakes of everyone involved in this mess of a project.
+# We noticed also that about half the coils are wound in the wrong direction in Modeste's code.
+# We are going to use a convention that a positive current in a coil generates a magnetic field
+# at its centre in the direction pointing inward, i.e. into the room.
 
 from scipy.constants import mu_0, pi
 import numpy as np
@@ -112,7 +115,7 @@ zface=a/2 # m
 
 #picture frame separated by 40mm
 
-# set up the rear wall   (East/west walls)
+# set up the East wall
 y1=300*.001
 z1=300*.001
 x1=xface
@@ -129,30 +132,30 @@ y4=y3
 z4=z1
 x4=xface
 point4=(x4,y4,z4)
-points_ur=(point1,point2,point3,point4)
-points_ur=np.array(points_ur)
+points_ul=(point1,point2,point3,point4)
+points_ul=np.array(points_ul)
 
 # Now add mirror images of these
 point1=(x1,-y1,z1)
 point2=(x4,-y4,z4)
 point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
-points_ul=(point1,point2,point3,point4)
-points_ul=np.array(points_ul)
+points_ur=(point1,point2,point3,point4)
+points_ur=np.array(points_ur)
 
 point1=(x1,-y1,-z1)
 point2=(x2,-y2,-z2)
 point3=(x3,-y3,-z3)
 point4=(x4,-y4,-z4)
-points_ll=(point1,point2,point3,point4)
-points_ll=np.array(points_ll)
+points_lr=(point1,point2,point3,point4)
+points_lr=np.array(points_lr)
 
 point1=(x1,y1,-z1)
 point2=(x4,y4,-z4)
 point3=(x3,y3,-z3)
 point4=(x2,y2,-z2)
-points_lr=(point1,point2,point3,point4)
-points_lr=np.array(points_lr)
+points_ll=(point1,point2,point3,point4)
+points_ll=np.array(points_ll)
 
 # now the central coil
 x1=xface
@@ -165,7 +168,7 @@ point4=(x1,-y1,z1)
 points_c=(point1,point2,point3,point4)
 points_c=np.array(points_c)
 
-# now the right side coil
+# now the middle left coil
 x1=xface
 y1=(235+5+20+40)*0.001
 z1=(300-40)*.001
@@ -182,17 +185,16 @@ x4=xface
 y4=y1
 z4=-z1
 point4=(x4,y4,z4)
-points_mr=(point1,point2,point3,point4)
-print('points_mr',points_mr)
-points_mr=np.array(points_mr)
+points_ml=(point1,point2,point3,point4)
+points_ml=np.array(points_ml)
 
-# now the left side coil -- reflect and wind in same direction
+# now the middle right coil -- reflect and wind in same direction
 point1=(x1,-y1,z1)
 point2=(x4,-y4,z4)
 point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
-points_ml=(point1,point2,point3,point4)
-points_ml=np.array(points_ml)
+points_mr=(point1,point2,point3,point4)
+points_mr=np.array(points_mr)
 
 # now the upper central coil
 x1=xface
@@ -200,7 +202,7 @@ y1=(235+5+20)*0.001
 z1=(300)*.001
 point1=(x1,y1,z1)
 x2=xface
-y2=-y1 # guess
+y2=-y1
 z2=z1
 point2=(x2,y2,z2)
 x3=xface
@@ -235,16 +237,30 @@ myset.add_coil(points_ml)
 myset.add_coil(points_uc)
 myset.add_coil(points_lc)
 '''
-#this ensures that coils are numbered in a logical fashion
-myset.add_coil(points_ur)  #coil 0
-myset.add_coil(points_uc) #1
-myset.add_coil(points_ul) #2
-myset.add_coil(points_mr) #3
-myset.add_coil(points_c) #4
-myset.add_coil(points_ml)
-myset.add_coil(points_lr)
-myset.add_coil(points_lc)
-myset.add_coil(points_ll) #8
+
+# Modeste's suggestion on how to build it
+
+# myset.add_coil(points_ur)
+# myset.add_coil(points_uc)
+# myset.add_coil(points_ul)
+# myset.add_coil(points_mr)
+# myset.add_coil(points_c)
+# myset.add_coil(points_ml)
+# myset.add_coil(points_lr)
+# myset.add_coil(points_lc)
+# myset.add_coil(points_ll)
+
+# How it was actually built (Jeff and Tahereh convention)
+
+myset.add_coil(points_ur) # coil 0
+myset.add_coil(points_uc) # coil 1
+myset.add_coil(points_ul) # coil 2
+myset.add_coil(points_mr) # coil 3
+myset.add_coil(points_c)  # coil 4
+myset.add_coil(points_ml) # coil 5
+myset.add_coil(points_lr) # coil 6
+myset.add_coil(points_lc) # coil 7
+myset.add_coil(points_ll) # coil 8
 
 
 # now reflect them all to the other face: xface -> -xface
@@ -253,49 +269,56 @@ def reflect_x(points):
     newpoints[:,0]=-newpoints[:,0]
     newpoints=np.flip(newpoints,0) # wind them in the opposite direction
     return newpoints
+
+
+# Jeff and Tahereh note that these names should likely be changed to reflect how someone
+# standing inside the MSR would understand them.  But we will not fix that problem
+# right now.
     
-oside_ur=reflect_x(points_ur)
+oside_ur=reflect_x(points_ur) 
 oside_ul=reflect_x(points_ul) 
-oside_ll=reflect_x(points_ll)
-oside_lr=reflect_x(points_lr)
-oside_c=reflect_x(points_c)
-oside_ml=reflect_x(points_ml)
-oside_mr=reflect_x(points_mr)
-oside_uc=reflect_x(points_uc)
+oside_ll=reflect_x(points_ll) 
+oside_lr=reflect_x(points_lr) 
+oside_c=reflect_x(points_c)   
+oside_ml=reflect_x(points_ml) 
+oside_mr=reflect_x(points_mr) 
+oside_uc=reflect_x(points_uc) 
 oside_lc=reflect_x(points_lc) 
 
 
-myset.add_coil(oside_ul)  #9
-myset.add_coil(oside_uc)
-myset.add_coil(oside_ur)
-myset.add_coil(oside_ml)
-myset.add_coil(oside_c)
-myset.add_coil(oside_mr)
-myset.add_coil(oside_ll)
-myset.add_coil(oside_lc)
+myset.add_coil(oside_ul) #9
+myset.add_coil(oside_uc) #10
+myset.add_coil(oside_ur) #11
+myset.add_coil(oside_ml) #12
+myset.add_coil(oside_c)  #13
+myset.add_coil(oside_mr) #14
+myset.add_coil(oside_ll) #15
+myset.add_coil(oside_lc) #16
 myset.add_coil(oside_lr) #17
 
 
 
-# Phew -- now onto the sides  (North/south walls)
-    
+# Phew -- now onto the front/back  (south/north walls)
+
+# coil 18
+
 z1=(260-5-40)*.001
 x1=(220-5)*.001
-y1=-yface
+y1=yface
 point1=(x1,y1,z1)
 z2=600*.001 #guess
 x2=x1
-y2=-yface
+y2=yface
 point2=(x2,y2,z2)
 z3=z2
 x3=600*.001 #guess
-y3=-yface
+y3=yface
 point3=(x3,y3,z3)
 z4=z1
 x4=x3
-y4=-yface
+y4=yface
 point4=(x4,y4,z4)
-side_ur=(point1,point2,point3,point4)
+side_ur=(point4,point3,point2,point1) # Jeff and Tahereh changed the winding direction for these coils
 side_ur=np.array(side_ur)
 
 # now reflect around
@@ -303,23 +326,23 @@ point1=(-x1,y1,z1)
 point2=(-x4,y4,z4)
 point3=(-x3,y3,z3)
 point4=(-x2,y2,z2)
-side_ul=np.array((point1,point2,point3,point4))
+side_ul=np.array((point4,point3,point2,point1))
 
 point1=(-x1,y1,-z1)
 point2=(-x2,y2,-z2)
 point3=(-x3,y3,-z3)
 point4=(-x4,y4,-z4)
-side_ll=np.array((point1,point2,point3,point4))
+side_ll=np.array((point4,point3,point2,point1))
 
 point1=(x1,y1,-z1)
 point2=(x4,y4,-z4)
 point3=(x3,y3,-z3)
 point4=(x2,y2,-z2)
-side_lr=np.array((point1,point2,point3,point4))
+side_lr=np.array((point4,point3,point2,point1))
 
 # central coil
 z1=(170+5)*.001
-y1=-yface
+y1=yface
 x1=(-221-5)*.001
 point1=(x1,y1,z1)
 point2=(x1,y1,-z1)
@@ -329,40 +352,40 @@ side_c=np.array((point1,point2,point3,point4))
 
 # middle right coil
 x1=(221+5+40)*.001
-y1=-yface
+y1=yface
 z1=(170+5)*.001
 point1=(x1,y1,z1)
 x2=600*.001 #guess
-y2=-yface
+y2=yface
 z2=z1
 point2=(x2,y2,z2)
 point3=(x2,y2,-z2)
 point4=(x1,y1,-z1)
-side_mr=np.array((point1,point2,point3,point4))
+side_mr=np.array((point4,point3,point2,point1))  # Jeff/Tahereh
 
 # reflect it to middle left coil
 point1=(-x1,y1,z1)
 point2=(-x1,y1,-z1)
 point3=(-x2,y2,-z2)
 point4=(-x2,y2,z2)
-side_ml=np.array((point1,point2,point3,point4))
+side_ml=np.array((point4,point3,point2,point1))  # Jeff/Tahereh
 
 # middle top
 z1=600*.001
 x1=(220-5-40)*.001
-y1=-yface
+y1=yface
 point1=(x1,y1,z1)
 z2=z1
 x2=-x1
-y2=-yface
+y2=yface
 point2=(x2,y2,z2)
 z3=(260-5-40)*.001
 x3=x2
-y3=-yface 
+y3=yface 
 point3=(x3,y3,z3)
 z4=z3
 x4=x1
-y4=-yface
+y4=yface
 point4=(x4,y4,z4)
 side_mt=np.array((point1,point2,point3,point4))
 
@@ -375,17 +398,17 @@ side_mb=np.array((point1,point2,point3,point4))
 
 
 myset.add_coil(side_ur) #18
-myset.add_coil(side_mt)
-myset.add_coil(side_ul)
-myset.add_coil(side_mr)
-myset.add_coil(side_c)
-myset.add_coil(side_ml)
-myset.add_coil(side_lr)
-myset.add_coil(side_mb)
+myset.add_coil(side_mt) #19
+myset.add_coil(side_ul) #20
+myset.add_coil(side_mr) #21
+myset.add_coil(side_c)  #22
+myset.add_coil(side_ml) #23
+myset.add_coil(side_lr) #24
+myset.add_coil(side_mb) #25
 myset.add_coil(side_ll) #26
 
 
-# now reflect them all to the other face: -yface -> yface
+# now reflect them all to the other face: yface -> -yface
 def reflect_y(points):
     newpoints=np.copy(points)
     newpoints[:,1]=-newpoints[:,1]
@@ -404,13 +427,13 @@ oside_side_mb=reflect_y(side_mb)
 
 
 myset.add_coil(oside_side_ul) #27
-myset.add_coil(oside_side_mt)
-myset.add_coil(oside_side_ur)
-myset.add_coil(oside_side_ml)
-myset.add_coil(oside_side_c)
-myset.add_coil(oside_side_mr)
-myset.add_coil(oside_side_ll)
-myset.add_coil(oside_side_mb)
+myset.add_coil(oside_side_mt) #28
+myset.add_coil(oside_side_ur) #29
+myset.add_coil(oside_side_ml) #30
+myset.add_coil(oside_side_c)  #31
+myset.add_coil(oside_side_mr) #32
+myset.add_coil(oside_side_ll) #33
+myset.add_coil(oside_side_mb) #34
 myset.add_coil(oside_side_lr) #35
 
 
@@ -432,27 +455,27 @@ x4=x1
 y4=y3
 z4=zface
 point4=(x4,y4,z4)
-top_ur=(point1,point2,point3,point4)
-top_ur=np.array(top_ur)
+top_ne=(point1,point2,point3,point4)
+top_ne=np.array(top_ne)
 
 # now reflect around
 point1=(-x1,y1,z1)
 point2=(-x4,y4,z4)
 point3=(-x3,y3,z3)
 point4=(-x2,y2,z2)
-top_ul=np.array((point1,point2,point3,point4))
+top_nw=np.array((point1,point2,point3,point4))
 
 point1=(-x1,-y1,z1)
 point2=(-x2,-y2,z2)
 point3=(-x3,-y3,z3)
 point4=(-x4,-y4,z4)
-top_ll=np.array((point1,point2,point3,point4))
+top_sw=np.array((point1,point2,point3,point4))
 
 point1=(x1,-y1,z1)
 point2=(x4,-y4,z4)
 point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
-top_lr=np.array((point1,point2,point3,point4))
+top_se=np.array((point1,point2,point3,point4))
 
 # central coil
 z1=zface
@@ -464,7 +487,7 @@ point3=(-x1,-y1,z1)
 point4=(-x1,y1,z1)
 top_c=np.array((point1,point2,point3,point4))
 
-# middle right coil
+# middle east coil
 x1=300*.001
 y1=(245+5+10)*.001
 z1=zface
@@ -475,16 +498,16 @@ z2=zface
 point2=(x2,y2,z2)
 point3=(x2,-y2,z2)
 point4=(x1,-y1,z1)
-top_mr=np.array((point1,point2,point3,point4))
+top_me=np.array((point1,point2,point3,point4))
 
 # reflect it to middle left coil
 point1=(-x1,y1,z1)
 point2=(-x1,-y1,z1)
 point3=(-x2,-y2,z2)
 point4=(-x2,y2,z2)
-top_ml=np.array((point1,point2,point3,point4))
+top_mw=np.array((point1,point2,point3,point4))
 
-# middle top
+# middle north
 x1=(300-40)*.001
 y1=600*.001
 z1=zface
@@ -501,25 +524,27 @@ x4=x1
 y4=y3
 z4=zface
 point4=(x4,y4,z4)
-top_mt=np.array((point1,point2,point3,point4))
+top_mn=np.array((point4,point3,point2,point1))  # Jeff/Tahereh
 
 # mirror to middle bottom
 point1=(x1,-y1,z1)
 point2=(x4,-y4,z4)
 point3=(x3,-y3,z3)
 point4=(x2,-y2,z2)
-top_mb=np.array((point1,point2,point3,point4))
+top_ms=np.array((point4,point3,point2,point1)) # Jeff/Tahereh
 
 
-myset.add_coil(top_ll) #36
-myset.add_coil(top_mb)
-myset.add_coil(top_lr)
-myset.add_coil(top_ml)
-myset.add_coil(top_c)
-myset.add_coil(top_mr) #41
-myset.add_coil(top_ul)
-myset.add_coil(top_mt)
-myset.add_coil(top_ur) #44
+# Jeff and Tahereh completely changed the notation to indicate as-built geometry
+
+myset.add_coil(top_nw) #36
+myset.add_coil(top_mn) #37
+myset.add_coil(top_ne) #38
+myset.add_coil(top_mw) #39
+myset.add_coil(top_c)  #40
+myset.add_coil(top_me) #41
+myset.add_coil(top_sw) #42
+myset.add_coil(top_ms) #43
+myset.add_coil(top_se) #44
 
 
 
@@ -530,26 +555,27 @@ def reflect_z(points):
     newpoints=np.flip(newpoints,0) # wind them in the opposite direction
     return newpoints
 
-bott_ur=reflect_z(top_ur)
-bott_ul=reflect_z(top_ul)
-bott_ll=reflect_z(top_ll)
-bott_lr=reflect_z(top_lr)
+bott_nw=reflect_z(top_nw)
+bott_mn=reflect_z(top_mn)
+bott_ne=reflect_z(top_ne)
+bott_mw=reflect_z(top_mw)
 bott_c=reflect_z(top_c)
-bott_ml=reflect_z(top_ml)
-bott_mr=reflect_z(top_mr)
-bott_mt=reflect_z(top_mt)
-bott_mb=reflect_z(top_mb)
+bott_me=reflect_z(top_me)
+bott_sw=reflect_z(top_sw)
+bott_ms=reflect_z(top_ms)
+bott_se=reflect_z(top_se)
 
 
-myset.add_coil(bott_ul)
-myset.add_coil(bott_mt)
-myset.add_coil(bott_ur)
-myset.add_coil(bott_ml)
-myset.add_coil(bott_c)
-myset.add_coil(bott_mr)
-myset.add_coil(bott_ll)
-myset.add_coil(bott_mb)
-myset.add_coil(bott_lr)
+myset.add_coil(bott_se) #45
+myset.add_coil(bott_ms) #46
+myset.add_coil(bott_sw) #47
+myset.add_coil(bott_me) #48
+myset.add_coil(bott_c)  #49
+myset.add_coil(bott_mw) #50
+myset.add_coil(bott_ne) #51
+myset.add_coil(bott_mn) #52
+myset.add_coil(bott_nw) #53
+
 
 class sensor:
     def __init__(self,pos):
@@ -738,6 +764,7 @@ class the_matrix:
     def check_field_graphically(self,myset,myarray):
         # test each coil by graphing field at each sensor
         for i in range(myset.numcoils):
+
             fig = plt.figure()
             ax=fig.add_subplot(111,projection='3d')
             myset.draw_coil(i,ax)
@@ -801,10 +828,17 @@ if(options.matrices):
 
 vec_i=mymatrix.Minv.dot(myarray.vec_b())
 
+# set currents on coil 4 and coil 22 only
+
+#myset.zero_currents()                  # turn off current from all coils
+
+#myset.set_current_in_coil(4,0.04)  #set current to coil 4
+
+#myset.set_current_in_coil(22,vec_i[22])       #set current to coil 22
 
 # Assign currents to coilcube
 
-myset.set_currents(vec_i)
+myset.set_currents(vec_i)  #set currents to all coils.
 
 # Check the field at the center of the coilcube
 r=np.array([0,0,0])
@@ -959,22 +993,21 @@ plt.show()
 
 print('vec_i is:',vec_i)
 
-#generating a current_onesheet.csv file
+#generating a current.csv file
 
 max_unnormalized_current=np.max(np.abs(vec_i)) # arb. units
 max_normalized_current=0.04 # Amperes
 calibration_factor=max_normalized_current/max_unnormalized_current
 calibrated_vec_i=vec_i*calibration_factor # Amperes
 
-channel_number =np.arange(54)
-#channel_number =np.arange(50)
+channel_number=np.arange(54)
 my_calibrated_array_i=calibrated_vec_i.reshape(-1,1) # Amperes
 print('my calibrated currents array',my_calibrated_array_i)
 print('my calibrated currents array',size(my_calibrated_array_i))
 
 import csv
 
-with open('current_oneshet.csv','w', newline='') as csvfile:
+with open('current.csv','w', newline='') as csvfile:
         fields=['channel_number','calibrated_vec_i']
         writer=csv.DictWriter(csvfile, delimiter=',', lineterminator='\n',fieldnames=fields)
         writer.writeheader()
@@ -984,7 +1017,13 @@ with open('current_oneshet.csv','w', newline='') as csvfile:
 
 # Now let's check what the field should be after setting these currents
 
-myset.set_currents(calibrated_vec_i)
+#myset.zero_currents()                           # turn off all currents.
+
+#myset.set_current_in_coil(4,calibrated_vec_i[4])  #set calibrated current to coil 4
+#myset.set_current_in_coil(22,calibrated_vec_i[22])       #set calibrated current to coil 22
+
+myset.set_currents(calibrated_vec_i)  # for all coils in the box.
+
 
 # the field at the centre of the coilcube
 r=np.array([0,0,0])
@@ -1129,10 +1168,10 @@ with open('data.json', 'w') as f:
     json.dump(data, f)
 
 #########################################################################################
-
+'''
 #graphing the data from x-,y-,z-scan.out containing the the theoretical target fields and compare with simulations.
 
-# load simultaed data
+# load theoretical fields
 
 data=np.transpose(np.loadtxt('xscan_onesheet.out'))
 x_sim,bx_sim,by_sim,bz_sim=data
@@ -1140,15 +1179,13 @@ bx_sim=bx_sim*1e9 # convert to nT
 by_sim=by_sim*1e9
 bz_sim=bz_sim*1e9
 
-#load target data
-
 data=np.transpose(np.loadtxt('yscan_onesheet.out'))
 x_sim,bx_sim,by_sim,bz_sim=data
 bx_sim=bx_sim*1e9 # convert to nT
 by_sim=by_sim*1e9
 bz_sim=bz_sim*1e9
 
-data=np.transpose(np.loadtxt('yscan_onesheet.out'))
+data=np.transpose(np.loadtxt('zscan_onesheet.out'))
 x_sim,bx_sim,by_sim,bz_sim=data
 bx_sim=bx_sim*1e9 # convert to nT
 by_sim=by_sim*1e9
@@ -1157,74 +1194,4 @@ bz_sim=bz_sim*1e9
 #meta data from theoretical fields.
 with open('data.json') as json_file:
     graphdata=json.load(json_file)
-    
-
-#simulation data
-data=np.transpose(np.loadtxt('xscan_onesheet.out'))
-x_sim,bx_sim,by_sim,bz_sim=data
-bx_sim=bx_sim*1e9 # convert to nT
-by_sim=by_sim*1e9
-bz_sim=bz_sim*1e9
-#print('sim data is:',bz_sim)  
-#print()
-#print(type(data))
-
-#target field
-data=np.transpose(np.loadtxt('xscan_onesheet_target.out'))
-x_target,bx_target,by_target,bz_target=data
-bx_target=bx_target*1e9 # convert to nT
-by_target=by_target*1e9
-bz_target=bz_target*1e9
-#print()
-#print('target data is:',bz_target)
-
-#meta data for theoretical field
-
-import json
-with open('data.json') as json_file:
-    graphdata=json.load(json_file)
-
-
-# position:
-# The scan direction is the minus x direction in simulation
-    
 '''
-#measurement
-plt.figure()
-plt.scatter(-positions[:,0]*.01,-z_data,color="b",label="$B_x(x,0,0)$ meas",marker='.')
-plt.scatter(-positions[:,0]*.01,-x_data,color="r",label="$B_y(x,0,0)$ meas",marker='.')
-plt.scatter(-positions[:,0]*.01,y_data,color="g",label="$B_z(x,0,0)$ meas",marker='.')
-'''
-
-# now plot simulation on top of this
-plt.plot(x_sim,bx_sim,color="b",label="$B_x(x,0,0)$ sim")
-plt.plot(x_sim,by_sim,color="r",label="$B_y(x,0,0)$ sim")
-plt.plot(x_sim,bz_sim,color="g",label="$B_z(x,0,0)$ sim")
-
-
-plt.plot(x_target,bx_target,'--',color="b",label="$B_x(x,0,0)=%s$"%(graphdata['Pix']))
-plt.plot(x_target,by_target,'--',color="r",label="$B_y(x,0,0)=%s$"%(graphdata['Piy']))
-plt.plot(x_target,bz_target,'--',color="g",label="$B_z(x,0,0)=%s$"%(graphdata['Piz']))
-
-plt.xlabel("Position along $x$-axis (cm)")
-plt.ylabel("Magnetic Field (nT)")
-
-ax=plt.gca()
-h,l=ax.get_legend_handles_labels()
-ph=[plt.plot([],marker="", ls="")[0]]*2
-#handles=[ph[0]]+h[::3]+[ph[1]]+h[1::3]+[ph[2]]+h[2::3]
-#labels=["Title 1:"]+l[::3]+["Title 2:"]+l[1::3]+["Title 3:"]+l[2::3]
-handles=[ph[0]]+h[0:3]+[ph[1]]+h[3:6]
-labels=[r"\underline{Simulated}"]+l[0:3]+[r"\underline{Target} $(\ell,m)=(%d,%d)$"%(graphdata['l'],graphdata['m'])]+l[3:6]
-
-
-plt.rc('text',usetex=True)
-plt.xlabel("Position along $x$-axis (cm)")
-plt.ylabel("Magnetic Field (nT)")
-plt.legend(handles, labels, ncol=2)
-
-#plt.savefig("field_measurements_%d_%d.png"%(graphdata['l'],graphdata['m']),dpi=300,bbox_inches='tight')
-
-plt.show()
-
-

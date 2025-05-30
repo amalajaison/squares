@@ -243,7 +243,7 @@ class sensorarray:
             for k in range(3):
                 the_vector[j*3+k]=b[k]
         return the_vector
-#print (the_vector)
+#print('the vector',the_vector)
 
 # set up array of sensors
 a_sensors=box_length/2
@@ -598,6 +598,7 @@ class the_matrix:
 
         
 mymatrix=the_matrix(myset,myarray)
+
 
 print('The condition number is %f'%mymatrix.condition)
 if(options.matrices):
